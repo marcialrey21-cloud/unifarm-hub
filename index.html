@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unifarm Hub</title>
+  
+  <link rel="icon" type="image/png" href="unifarm-logo.png">
+  <link rel="apple-touch-icon" href="unifarm-logo.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="splashScreen" class="splash-overlay">
+    <div class="splash-content">
+      <img src="unifarm-logo.png" class="splash-logo-img" alt="Unifarm Hub Livestock">
+      <h1 class="splash-title">Unifarm Hub</h1>
+      <p class="splash-subtitle">Enterprise Farm Management</p>
+      <div class="splash-loader"></div>
+    </div>
+  </div>
+  <div id="authScreen" class="auth-overlay">
+    <div class="auth-card">
+      <h1 class="auth-title">Unifarm Hub</h1>
+      <p class="auth-subtitle">Secure Farm Access</p>
+      
+      <form id="authForm">
+        <div class="input-group">
+          <label class="dark-label" for="authEmail">Email Address</label>
+          <input type="email" id="authEmail" placeholder="farmer@example.com" required>
+        </div>
+        
+        <div class="input-group">
+          <label class="dark-label" for="authPassword">Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" id="authSubmitBtn" class="primary-btn auth-submit-btn">
+          Log In / Register
+        </button>
+        <div class="auth-footer">
+          <p class="mb-10"><strong>Want to optimize your farm and predict harvest costs?</strong></p>
+          <p class="mb-5">To purchase a Unifarm Hub license, message us here:</p>
+          
+          <p class="mb-5">
+            📞 Phone/Viber: 
+            <a href="tel:09495933239" class="auth-link">
+              0949-593-3239
+            </a>
+          </p>
+          
+          <p class="mb-5">
+            📱 FB Page:
+            <a href="https://www.facebook.com/search/top?q=In%20Between%20Bamboos%20Farm" target="_blank" rel="noopener" class="auth-link">
+              In Between Bamboos Farm
+            </a>
+          </p>
+
+          <p class="mb-0">
+            👤 Facebook: <strong>Marcial Rey</strong>
+          </p>
+        </div>
+      </form>
+      
+      <p id="authMessage" class="auth-message"></p>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <h1>Unifarm Hub</h1>
+    <div class="header-actions">
+      <button id="previewWorkerBtn" class="header-toggle-btn" title="Toggle Worker View">
+        👁️ Preview
+      </button>
+      <button id="logoutBtn" class="header-logout-btn" title="Log Out">
+        🚪 Exit
+      </button>
+    </div>
+  </header>
+
+  <div id="globalContextBar" class="context-bar">
+    <label for="speciesSelector" class="context-label">Current Farm Operations:</label>
+    <select id="farmOperationSelector" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; color: #2E7D32; background-color: white;">
+        <optgroup label="🌾 Agronomy (Crops)">
+            <option value="crops_general">General Crops (Rice/Corn)</option>
+            <option value="crops_highvalue">High Value Crops</option>
+        </optgroup>
+        
+        <optgroup label="🐾 Livestock & Poultry">
+            <option value="poultry" selected>Poultry (Broilers/Layers)</option>
+            <option value="swine">Swine (Fatteners/Sows)</option>
+            <option value="dairy">Dairy Cattle</option>
+            <option value="beef">Beef Cattle</option>
+            <option value="goats">Goats & Sheep</option>
+        </optgroup>
+    </select>
+  </div>
+
+  <main class="app-content">
+    <div id="weatherWidget" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="flex-grow: 1;">
+            <h3 style="margin: 0; font-size: 1.2rem;" id="weatherLocation">Loading local weather...</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.9;" id="weatherDescription">Please allow location access.</p>
+        </div>
+        <div style="text-align: right;">
+            <h2 style="margin: 0; font-size: 2rem;" id="weatherTemp">--°C</h2>
+        </div>
+    </div>
+    
+    <div id="dashboardView" class="page-section active-section">
+      <div class="card dashboard-card">
+        <div class="user-profile-header">
+        <img src="" id="userAvatarDisplay" class="user-avatar" alt="User Profile" title="Click to change profile picture">
+        <input type="file" id="avatarUploadInput" accept="image/*" class="hidden-input" title="Upload Profile Picture">
+        
+        <div class="user-greeting-box">
+            <p class="greeting-text">Welcome back,</p>
+            <h3 id="userNameDisplay">Farmer</h3>
+          </div>
+        </div>
+        
+        <hr class="dashboard-divider">
+        
+        <p class="dashboard-subtitle">Total Farm Assets </p>
+        <h2 id="totalValueDisplay" class="financial-data">₱0.00 </h2>
+      </div>
+
+      <div class="card">
+        <h2>📊 Asset Distribution</h2>
+        <p class="subtitle">Real-time breakdown of your inventory value.</p>
+        <div class="chart-container">
+          <canvas id="inventoryChart"></canvas>
+        </div>
+      </div> 
+      
+      <div class="card">
+        <h2>📋 Recent Activity Log</h2>
+        <p class="subtitle">Permanent record of inventory changes.</p>
+        <div id="activityLogList" class="activity-log-container">
+          <p class="empty-msg">No recent activity.</p>
+        </div>
+      </div>
+
+      <div id="poultryModule" class="card predictor-card predictor-spacing species-module poultry-view swine-view beef-view goat-view">
+        <img src="poultry-banner.jpg" id="dynamicBannerImage" class="module-banner" alt="Livestock Banner">
+        <h2 id="dynamicGrowthTitle">📈 Poultry Growth Predictor</h2>
+        <p class="subtitle">Estimate harvest dates and total feed requirements.</p>
+        <input type="hidden" id="animalType" value="broiler">
+        <div class="input-row">
+          <div class="input-group">
+            <label class="dark-label" for="currentWeight">Current Weight (kg)</label>
+            <input type="number" id="currentWeight" placeholder="e.g., 25" step="0.01" required>
+          </div>
+          <div class="input-group">
+            <label class="dark-label" for="targetWeight">Target Weight (kg)</label>
+            <input type="number" id="targetWeight" placeholder="e.g., 90" step="0.01" required>
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label class="dark-label" for="adg">Base ADG (kg/day)</label>
+            <input type="number" id="adg" placeholder="0" step="0.001" required>
+          </div>
+          <div class="input-group">
+            <label class="dark-label" for="fcr">Base Est. FCR</label>
+            <input type="number" id="fcr" placeholder="0" step="0.01" required>
+          </div>
+        
+        </div>
+        <div class="feed-toggle-box">
+          <input type="checkbox" id="useFormulatedFeed" class="feed-checkbox">
+          <label for="useFormulatedFeed" class="feed-label">🌱 Apply Last Formulated Feed</label>
+          <p id="feedStatsDisplay" class="feed-stats-text">
+            No feed formulated yet. Go to Optimizer first!
+          </p>
+        </div>
+        <button type="button" id="calcGrowthBtn" class="primary-btn calculate-btn calc-growth-spacing">Predict Harvest</button>
+        <div id="growthResultBox" class="result-box hidden-result">
+          <button id="downloadPdfBtn" class="primary-btn download-pdf-btn">
+            📄 Download PDF Boss Report
+          </button>
+          <h3 class="prediction-title">Harvest Projection:</h3>
+          <p>Days to Harvest: <strong id="resDaysToHarvest" class="large-text">0 Days</strong></p>
+          <p>Est. Harvest Date: <strong id="resHarvestDate" class="success-text">---</strong></p>
+          <hr class="result-divider">
+          <p>Total Feed Needed: <strong id="resTotalFeed">0 kg</strong></p>
+          <p>Est. Feed Cost (per head): <strong id="resTotalCost" class="warning-text">₱0.00</strong></p>
+        </div>
+      </div> 
+      
+      <div id="dairyModule" class="species-module dairy-view hidden-section">        
+        <div class="card predictor-card">
+          <img src="dairy-banner.jpg" class="module-banner" alt="Dairy Banner">
+          <h2>🐄 Dairy Herd Management</h2>
+          <p class="subtitle">Track lactation cycles and forecast milk revenue.</p>
+            
+          <h3>305-Day Yield Predictor</h3>
+          <p class="help-text-small">
+            Estimate a cow's total seasonal milk production based on her current daily yield.
+          </p>
+            
+          <form id="dairyForm">
+            <div class="input-row">
+              <div class="input-group">
+                <label for="currentYield">Current Yield (Liters/Day)</label>
+                <input type="number" id="currentYield" placeholder="e.g., 25" step="0.1" required>
+              </div>
+              <div class="input-group">
+                <label for="dim">Days in Milk (DIM)</label>
+                <input type="number" id="dim" placeholder="e.g., 60" required>
+              </div>
+            </div>
+            <button type="submit" class="primary-btn btn-dairy-blue">Calculate Lactation</button>
+          </form>
+
+          <div id="dairyResultBox" class="result-box hidden-result mt-15">
+            <h3 class="prediction-title">Seasonal Forecast:</h3>
+            <p>Estimated Peak Yield: <strong id="resPeakYield">0 L/day</strong></p>
+            <p>Est. Total 305-Day Yield: <strong id="resTotalYield" class="success-text">0 L</strong></p>
+            <hr class="result-divider">
+            <p class="help-text-small">*Based on standard Holstein-Friesian lactation curves.</p>
+          </div>
+        </div>
+      </div> <!-- FIXED: Closed dairyModule -->
+    </div> <!-- FIXED: Closed dashboardView -->
+      
+    <div id="inventoryView" class="page-section">
+      <div class="card inventory-card">
+        <h2>Current Inventory</h2>
+        <div id="inventoryList">
+          <p class="empty-msg">No items yet.</p>
+        </div>  
+        <button id="exportCsvBtn" class="primary-btn" >📥 Download Report (.csv)</button>
+      </div>
+      <div class="card">
+        <h2>📦 Add New Batch</h2>
+        <p class="subtitle">Enter supply details below to add to your inventory.</p>
+        <form id="addBatchForm">
+          <div class="input-group">
+            <label for="itemName">Item Name</label>
+            <input type="text" id="itemName" placeholder="e.g., Organic Fertilizer" required>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="quantity">Quantity</label>
+              <input type="number" id="quantity" placeholder="0" required>
+            </div>
+            <div class="input-group">
+              <label for="unit">Unit</label>
+              <input type="text" id="unit" placeholder="e.g., kg, liters" required>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="cost">Cost per Unit (PHP)</label>
+            <input type="number" id="cost" placeholder="0.00" required>
+          </div>
+          <button type="submit" class="primary-btn">Save to Inventory</button>
+        </form>
+      </div>
+
+      <div class="card predictor-card">
+        <h2>🔮 Stock Predictor</h2>
+        <p class="subtitle">Calculate exactly when you will run out of supplies.</p>
+        <div class="input-group">
+          <label for="predictItemSelect">Select Inventory Item</label>
+          <select id="predictItemSelect" class="form-control">
+            <option value="">-- Loading items... --</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="dailyRate">Daily Consumption Rate</label>
+          <input type="number" id="dailyRate" class="form-control" placeholder="e.g., 5" required>
+        </div>
+        <button type="button" id="predictBtn" class="primary-btn">Calculate Runway</button>
+        <div id="predictionResult" class="result-box hidden-result">
+          <h3 class="prediction-title">Prediction:</h3>
+          <p>Stock Remaining: <strong id="predCurrentStock">0</strong></p>
+          <p>Days Left: <strong id="predDaysLeft" class="large-text">0 Days</strong></p>
+          <p>Estimated Depletion Date: <strong id="predEmptyDate" class="warning-text">---</strong></p>
+        </div>
+      </div> 
+    </div> 
+
+    <div id="formulatorView" class="page-section">
+      <div class="card">
+        <h2>Feed Formulator</h2>
+        <p class="subtitle">Calculate the Crude Protein (CP) of a custom mix.</p>
+        
+        <div id="ingredientList">
+          <div class="input-row ingredient-row">
+            <div class="input-group">
+              <label>Ingredient</label>
+              <input type="text" class="ing-name" placeholder="e.g., Corn" required>
+            </div>
+            <div class="input-group">
+              <label>Weight (kg)</label>
+              <input type="number" class="ing-weight" placeholder="0" required>
+            </div>
+            <div class="input-group">
+              <label>Protein (%)</label>
+              <input type="number" class="ing-protein" placeholder="0" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="formulator-actions">
+          <button type="button" id="addIngredientBtn" class="add-row-btn">+ Add Row</button>
+          <button type="button" id="calculateFeedBtn" class="primary-btn calculate-btn">Calculate Mix</button>
+          <button type="button" id="deductInventoryBtn" class="deduct-btn">Deduct Inventory</button>
+        </div>
+        
+        <div class="result-box">
+          <h3>Mix Results:</h3>
+          <p>Total Weight: <strong id="resultWeight">0.00 kg</strong></p>
+          <p>Final Crude Protein: <strong id="resultProtein">0.00%</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="optimizerView" class="page-section">
+      <div class="card">
+        <h2>🧠 Advanced Least-Cost Optimizer</h2>
+        <p class="subtitle">Balance cost without sacrificing nutritional quality.</p>
+        
+        <div class="target-goals-box">
+          <div class="opt-header-flex">
+            <h3 class="opt-section-title no-margin-bottom">Target Batch Requirements</h3>
+            
+            <div class="input-group species-select-wrapper">
+              <select id="optAnimalCategory" class="form-control species-select" aria-label="Select Animal Species">
+                <option value="custom">⚙️ Custom / Manual Entry</option>
+                <optgroup label="🐔 Poultry (Broiler)">
+                  <option value="broiler_starter">Broiler (Starter: 0-14 days)</option>
+                  <option value="broiler_grower">Broiler (Grower: 15-28 days)</option>
+                  <option value="broiler_finisher">Broiler (Finisher: 28+ days)</option>
+                </optgroup>
+                <optgroup label="🥚 Poultry (Layer & Quail)">
+                  <option value="layer_pullet">Layer (Pullet/Developer)</option>
+                  <option value="layer_peak">Layer (Peak Production)</option>
+                  <option value="quail_laying">Quail (Laying)</option>
+                </optgroup>
+                <optgroup label="🐖 Swine">
+                  <option value="swine_starter">Swine (Starter: 10-25 kg)</option>
+                  <option value="swine_grower">Swine (Grower: 25-60 kg)</option>
+                  <option value="swine_finisher">Swine (Finisher: 60-100 kg)</option>
+                  <option value="sow_gestating">Sow (Gestating/Dry)</option>
+                  <option value="sow_lactating">Sow (Lactating)</option>
+                </optgroup>
+                <optgroup label="🐄 Large Ruminants (Cattle)">
+                  <option value="calf_starter">Calf (Starter/Creep)</option>
+                  <option value="beef_fattening">Beef Cattle (Fattening)</option>
+                  <option value="dairy_dry">Dairy Cow (Dry Period)</option>
+                  <option value="dairy_lactating">Dairy Cow (Lactating)</option>
+                </optgroup>
+                <optgroup label="🐐 Small Ruminants (Goat/Sheep)">
+                  <option value="goat_fattening">Goat/Sheep (Fattening)</option>
+                  <option value="goat_dairy">Dairy Goat (Lactating)</option>
+                </optgroup>
+                <optgroup label="🐟 Aquaculture">
+                  <option value="tilapia_growout">Tilapia (Grow-out)</option>
+                  <option value="bangus_growout">Milkfish/Bangus (Grow-out)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="opt-grid">
+              <div class="input-group"><label class="dark-label" for="optTargetWeight">Weight (kg)</label><input type="number" id="optTargetWeight" value="100" required></div>
+              <div class="input-group"><label class="dark-label" for="optTargetProtein">Min Protein (%)</label><input type="number" id="optTargetProtein" value="16" required></div>
+              <div class="input-group"><label class="dark-label" for="optTargetEnergy">Min Energy (kcal)</label><input type="number" id="optTargetEnergy" value="3000" required></div>
+              <div class="input-group"><label class="dark-label" for="optTargetCalcium">Min Calcium (%)</label><input type="number" id="optTargetCalcium" value="0.9" required></div>
+              <div class="input-group"><label class="dark-label" for="optTargetPhos">Min Phos (%)</label><input type="number" id="optTargetPhos" value="0.45" required></div>
+              <div class="input-group"><label class="dark-label" for="optTargetLysine">Min Lysine (%)</label><input type="number" id="optTargetLysine" value="0.8" required></div>
+              <div class="input-group"><label class="dark-label" for="optTargetMeth">Min Meth (%)</label><input type="number" id="optTargetMeth" value="0.3" required></div>
+              <div class="input-group"><label class="dark-label danger-label" for="optTargetFiber">Max Fiber (%)</label><input type="number" id="optTargetFiber" value="5.0" required></div>
+            </div>
+          </div>
+        </div> 
+
+        <h3>Available Ingredients Profile</h3>
+        <div class="table-responsive">
+          <div id="optIngredientList" class="opt-scrollable-list">
+            <div class="opt-grid-row header-row">
+              <div>Ingredient</div><div>Cost (₱)</div><div>CP (%)</div><div>Energy</div><div>Ca (%)</div><div>Phos (%)</div><div>Lys (%)</div><div>Meth (%)</div><div>Fiber (%)</div><div>Max (%)</div><div></div>
+            </div>
+            
+            <div class="opt-grid-row opt-ingredient-row">
+              <input type="text" class="opt-name form-control" aria-label="Ingredient Name" placeholder="Type name...">
+              <input type="number" class="opt-cost form-control" aria-label="Cost per kg">
+              <input type="number" class="opt-protein form-control" aria-label="Protein Percentage">
+              <input type="number" class="opt-energy form-control" aria-label="Energy kcal">
+              <input type="number" class="opt-calcium form-control" aria-label="Calcium Percentage">
+              <input type="number" class="opt-phos form-control" aria-label="Phosphorus Percentage">
+              <input type="number" class="opt-lysine form-control" aria-label="Lysine Percentage">
+              <input type="number" class="opt-meth form-control" aria-label="Methionine Percentage">
+              <input type="number" class="opt-fiber form-control" aria-label="Fiber Percentage">
+              <input type="number" class="opt-max form-control" aria-label="Max Limit Percentage" placeholder="Max %">
+              <div></div>
+            </div>
+          </div>
+        </div>  
+        
+        <div class="formulator-actions opt-actions">
+          <button type="button" id="optAddRowBtn" class="add-row-btn">+ Add Ingredient</button>
+          <button type="button" id="optimizeBtn" class="primary-btn calculate-btn">Run Advanced Optimizer</button>
+        </div>
+        
+        <div id="optResultBox" class="result-box hidden-result">
+          <h3 class="prediction-title">Optimal Formula Found!</h3>
+          <p>Estimated Cost: <strong id="optFinalCost" class="success-text">₱0.00</strong></p>
+          <hr class="result-divider">
+          
+          <div id="optRecipeList"></div>
+          
+          <div class="button-group">
+            <button type="button" id="exportToFormulatorBtn" class="secondary-btn export-btn">
+              ➡️ Export to Manual Formulator
+            </button>
+          </div> <!-- FIXED: Closed button group -->
+          
+          <div class="action-buttons-container">
+            <button id="downloadMixPdfBtn" class="btn-elegant-outline" onclick="OptimizerController.downloadMixSheetPDF()">
+              📄 Download PDF Mix Sheet
+            </button>
+            
+            <button id="optDeductBtn" class="btn-elegant-solid" onclick="OptimizerController.mixBatchAndUpdateInventory()">
+              📦 Mix Batch & Update Inventory
+            </button>
+          </div>
+        </div> <!-- FIXED: Closed optResultBox -->
+      </div> <!-- FIXED: Closed the first card inside optimizerView -->
+      
+      <div class="card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;">
+          <h3 style="margin-top: 0; color: #2E7D32; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px;">FCR & Profit Tracker</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+              <div>
+                  <label style="font-size: 0.8rem; color: #666;">Initial Headcount</label>
+                  <input type="number" id="fcrHeadcount" value="1000" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+              <div>
+                  <label style="font-size: 0.8rem; color: #666;">Cost per Head (₱)</label>
+                  <input type="number" id="fcrAnimalCost" value="40" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+              <div>
+                  <label style="font-size: 0.8rem; color: #666;">Mortality Rate (%)</label>
+                  <input type="number" id="fcrMortality" value="5" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+              <div>
+                  <label style="font-size: 0.8rem; color: #666;">Feed Consumed (kg)</label>
+                  <input type="number" id="fcrTotalFeed" value="3000" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+              <div>
+                  <label style="font-size: 0.8rem; color: #666;">Harvest Weight (kg)</label>
+                  <input type="number" id="fcrHarvestWeight" value="1500" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+              <div>
+                  <label style="font-size: 0.8rem; color: #666;">Feed Cost (₱/kg)</label>
+                  <input type="number" id="fcrFeedCost" value="25" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+              <div style="grid-column: span 2;">
+                  <label style="font-size: 0.8rem; color: #666;">Selling Price (₱/kg)</label>
+                  <input type="number" id="fcrSellingPrice" value="150" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+              </div>
+          </div>
+
+          <button id="btnCalculateFCR" style="width: 100%; background: #2E7D32; color: white; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 20px;">Calculate Profitability</button>
+
+          <div id="fcrResults" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
+              <div style="text-align: center; margin-bottom: 15px;">
+                  <p style="margin: 0; font-size: 0.9rem; color: #666;">Feed Conversion Ratio (FCR)</p>
+                  <h2 id="resFCR" style="margin: 5px 0; color: #1565C0; font-size: 2.2rem;">--</h2>
+                  <span id="resFCRStatus" style="font-size: 0.85rem; font-weight: bold; padding: 3px 8px; border-radius: 12px;">--</span>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; border-top: 1px solid #ddd; padding-top: 10px; margin-bottom: 5px;">
+                  <span style="color: #666;">Total Prod. Cost:</span>
+                  <strong id="fcrResTotalCost">₱--</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 10px;">
+                  <span style="color: #666;">Total Revenue:</span>
+                  <strong id="resRevenue">₱--</strong>
+              </div>
+
+              <div style="text-align: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                  <p style="margin: 0; font-size: 0.9rem; color: #666;">Est. Net Profit</p>
+                  <h2 id="resNetProfit" style="margin: 5px 0; font-size: 2rem;">₱--</h2>
+                  <p style="margin: 0; font-size: 0.9rem; color: #666;">Profit per kg: <strong id="resProfitPerKg">₱--</strong></p>
+              </div>
+          </div>
+      </div>  
+    </div> <!-- FIXED: Closed optimizerView properly -->
+
+    <div id="simulatorView" class="page-section">
+  
+      <div class="sim-header">
+        <h3 class="sim-title">🌍 Farm Digital Twin</h3>
+        <p class="help-text-small m-0">Adjust environmental inputs to predict harvest yield and simulate profit margins in real-time.</p>
+      </div>
+
+      <div class="sim-layout">
+        
+        <div class="enterprise-card sim-panel-left">
+          <div class="sim-controls-header">
+            <h4 class="sim-controls-title">Agronomic Inputs</h4>
+            <button id="simSettingsBtn" class="btn-elegant-outline btn-sim-settings">⚙️ Prices</button>
+          </div>
+
+          <h5 class="sim-section-header">1. Soil Nutrition (50kg Bags/ha)</h5>
+          
+          <div class="sim-input-row">
+            <div class="sim-label-row">
+              <label for="simUrea" class="sim-label">Urea (46-0-0)</label>
+              <span class="sim-val-blue"><span id="valUrea">4</span> Bags</span>
+            </div>
+            <input type="range" id="simUrea" class="sim-slider" min="0" max="10" step="0.5" value="4">
+          </div>
+
+          <div class="sim-input-row">
+            <div class="sim-label-row">
+              <label for="simComplete" class="sim-label">Complete (14-14-14)</label>
+              <span class="sim-val-blue"><span id="valComplete">2</span> Bags</span>
+            </div>
+            <input type="range" id="simComplete" class="sim-slider" min="0" max="10" step="0.5" value="2">
+          </div>
+
+          <h5 class="sim-section-header">2. Crop Protection (Applications)</h5>
+
+          <div class="sim-input-row">
+            <div class="sim-label-row">
+              <label for="simInsecticide" class="sim-label">Insecticide Sprays</label>
+              <span class="sim-val-red"><span id="valInsecticide">1</span>x</span>
+            </div>
+            <input type="range" id="simInsecticide" class="sim-slider" min="0" max="4" step="1" value="1">
+          </div>
+
+          <div class="sim-input-row">
+            <div class="sim-label-row">
+              <label for="simFungicide" class="sim-label">Fungicide Sprays</label>
+              <span class="sim-val-red"><span id="valFungicide">1</span>x</span>
+            </div>
+            <input type="range" id="simFungicide" class="sim-slider" min="0" max="4" step="1" value="1">
+          </div>
+
+          <div class="sim-input-row">
+            <div class="sim-label-row">
+              <label for="simHerbicide" class="sim-label">Herbicide (Weed Control)</label>
+              <span class="sim-val-red"><span id="valHerbicide">1</span>x</span>
+            </div>
+            <input type="range" id="simHerbicide" class="sim-slider" min="0" max="2" step="1" value="1">
+          </div>
+
+          <h5 class="sim-section-header">3. Environment</h5>
+
+          <div class="sim-input-row">
+            <div class="sim-label-row">
+              <label for="simWater" class="sim-label">Irrigation (mm)</label>
+              <span class="sim-val-blue"><span id="valWater">150</span> mm</span>
+            </div>
+            <input type="range" id="simWater" class="sim-slider" min="0" max="300" step="10" value="150">
+          </div>
+
+        </div>
+
+        <div class="sim-panel-right">
+          
+          <div class="sim-stats-row">
+            
+            <div class="enterprise-card sim-stat-card border-green">
+              <p class="metric-label">Predicted Yield</p>
+              <h2 id="simYieldResult" class="sim-stat-val-green">0.00 Tons/ha</h2>
+            </div>
+            
+            <div class="enterprise-card sim-stat-card border-blue">
+              <p class="metric-label">Est. Net Profit</p>
+              <h2 id="simProfitResult" class="sim-stat-val-blue">PHP 0.00</h2>
+              
+              <div class="sim-roi-badge">
+                <p id="simRoiResult" class="sim-roi-text">ROI: 0%</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="enterprise-card sim-chart-card">
+            <p class="metric-label sim-chart-title">Financial Breakdown</p>
+            <div class="sim-chart-wrapper">
+              <canvas id="simFinancialChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="scannerView" class="page-section">
+  
+      <div class="sim-header" style="text-align: center; margin-bottom: 30px;">
+        <h3 style="color: #0277bd; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+          📷 AI Crop Scanner
+        </h3>
+        <p class="help-text-small m-0">Point your camera at a leaf to detect nutrient deficiencies, pests, and diseases instantly.</p>
+      </div>
+      <!-- Scanner Mode Toggle -->
+      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; padding-top: 10px;">
+          <button id="btnModePlant" class="scanner-btn active" style="flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #4CAF50; background: #4CAF50; color: white; font-weight: bold; cursor: pointer; transition: 0.3s;">
+              🌱 Plant Health
+          </button>
+          <button id="btnModePest" class="scanner-btn" style="flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #FF9800; background: white; color: #FF9800; font-weight: bold; cursor: pointer; transition: 0.3s;">
+              🪲 Pest ID
+          </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 0 10px;">
+        
+        <div class="scanner-container" id="scannerBox">
+          <video id="cameraFeed" autoplay playsinline style="display: none;"></video>
+          <canvas id="photoCanvas" style="display: none; width: 100%;"></canvas>
+          
+          <div class="scanner-overlay" id="scannerOverlay">
+            <div class="viewfinder-corner tl"></div>
+            <div class="viewfinder-corner tr"></div>
+            <div class="viewfinder-corner bl"></div>
+            <div class="viewfinder-corner br"></div>
+            <div class="laser-line"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; width: 100%; max-width: 400px;">
+          <button id="btnStartCamera" class="btn btn-primary btn-fill" style="background-color: #1e293b; border: none;">Activate Camera</button>
+          <button id="btnScanLeaf" class="btn btn-primary btn-fill" style="background-color: #0277bd; border: none; display: none;">Scan Leaf</button>
+          <button id="btnRetake" class="btn btn-secondary btn-fill btn-light-gray" style="display: none;">Retake</button>
+          <button id="btnViewHistory" class="btn-elegant-outline" style="padding: 10px; display: flex; align-items: center; justify-content: center;">📋 Log</button>
+        </div>
+
+        <div id="aiResultCard" class="enterprise-card" style="width: 100%; max-width: 400px; padding: 20px; border-radius: 12px; border-left: 5px solid #0277bd; display: none;">
+          <div id="plantIdentityCard" style="display: none; margin-bottom: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 12px; text-align: left;">
+            <h3 style="color: #166534; margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #bbf7d0; padding-bottom: 5px;">🌱 Plant Identification</h3>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 5px; font-size: 0.9rem; color: #374151;">
+                <div><strong>English:</strong> <span id="plantEng">--</span></div>
+                <div><strong>Scientific:</strong> <i id="plantSci">--</i></div>
+                <div><strong>Common:</strong> <span id="plantCom">--</span></div>
+                <div><strong>Local:</strong> <span id="plantLoc" style="color: #c2410c; font-weight: bold;">--</span></div>
+            </div>
+        </div>
+
+        <div id="weatherAlertBox" style="display: none; background: #fff7ed; border: 1px solid #ffedd5; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+            <span style="color: #9a3412; font-size: 0.85rem;"><strong>🌦 Weather Advisory:</strong> <span id="weatherText">--</span></span>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 15px;">
+
+        <p class="metric-label" style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Diagnosis</span>
+            <span id="aiConfidenceBadge" style="font-weight: bold;">--</span>
+        </p>
+        
+        <h3 id="aiDiagnosisTitle" style="margin: 5px 0; font-size: 1.4rem;">Analyzing...</h3>
+        <p id="aiRecommendation" style="font-size: 0.95rem; line-height: 1.5; color: #475569; margin-top: 10px;"></p>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+          <button id="btnSpeak" class="btn-elegant-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: white; border: 1px solid #1e293b; border-radius: 8px; cursor: pointer;">
+              🔊 Listen to Diagnosis</button>
+          <button id="btnApplyPrescription" class="btn-elegant-solid" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">
+              🧪 Apply Fix & View in Simulator</button>
+          <button id="btnDownloadPDF" class="btn-elegant-outline" style="width: 100%; margin-top: 10px; display: none; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; font-weight: bold; color: #1e293b;">
+              📄 Download PDF Report</button>    
+        </div>
+      </div>
+     </div>
+    </div> <!-- FIXED: Closed scannerView properly -->
+
+    <div id="mapView" class="page-section" style="display: none;">
+        <div class="enterprise-card" style="padding: 15px; border-bottom: 1px solid #eee;">
+            <h3 style="margin:0;">📍 Regional Outbreak Map</h3>
+        </div>
+        <div id="outbreakMap" style="height: 600px; width: 100%; z-index: 1;"></div>
+    </div> <!-- Cleaned up rogue </div> tags here -->
+
+    <div id="toolsView" class="page-section" style="display: none; padding: 20px; padding-bottom: 80px;">
+          <h2 style="color: #2E7D32; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px;">Farm Operations Hub</h2>
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Select a tool for your current operation.</p>
+
+          <div id="menuLivestock" style="display: grid; gap: 15px;">
+              <div class="tool-card" data-target="formulatorView" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; border-left: 5px solid #ff9800;">
+                  <h3 style="margin: 0; color: #333;">🧪 Feed Formulator</h3>
+                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">Create custom feed matrices.</p>
+              </div>
+              
+              <div class="tool-card" data-target="optimizerView" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; border-left: 5px solid #2196F3;">
+                  <h3 style="margin: 0; color: #333;">⚡ Cost Optimizer</h3>
+                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">Find the cheapest valid formula.</p>
+              </div>
+
+              <div class="tool-card" data-target="sandboxView" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; border-left: 5px solid #9C27B0;">
+                  <h3 style="margin: 0; color: #333;">🧮 Feed Sandbox</h3>
+                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">Test "What-If" scenarios safely.</p>
+              </div>
+          </div>
+
+          <div id="menuAgronomy" style="display: none; gap: 15px;">
+              <div class="tool-card" data-target="simulatorView" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; border-left: 5px solid #4CAF50;">
+                  <h3 style="margin: 0; color: #333;">🌱 Yield Simulator</h3>
+                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">Predict crop harvest and ROI.</p>
+              </div>
+              <div class="tool-card" data-target="scannerView" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; border-left: 5px solid #03A9F4;">
+                  <h3 style="margin: 0; color: #333;">📷 Crop Scanner</h3>
+                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">Detect nutrient deficiencies and pests.</p>
+              </div>
+          </div>
+    </div>
+
+    <div id="sandboxView" class="page-section" style="display: none; padding: 20px; padding-bottom: 80px;">
+          <div style="background: #f3e5f5; border: 1px solid #ce93d8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+              <h2 style="margin: 0; color: #6a1b9a;">🧮 Safe Sandbox Mode</h2>
+              <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #4a148c;">Changes made here will not affect your real inventory.</p>
+          </div>
+
+          <div class="card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
+              <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Adjust Ingredients</h3>
+              
+              <div style="margin-bottom: 15px;">
+                  <label style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem;">
+                      <span>Corn (8% CP)</span> <span id="sbCornVal">50%</span>
+                  </label>
+                  <input type="range" id="sbCorn" class="sandbox-slider" min="0" max="100" value="50" style="width: 100%;">
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                  <label style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem;">
+                      <span>Soybean Meal (48% CP)</span> <span id="sbSbmVal">30%</span>
+                  </label>
+                  <input type="range" id="sbSbm" class="sandbox-slider" min="0" max="100" value="30" style="width: 100%;">
+              </div>
+
+              <div style="margin-bottom: 15px;">
+                  <label style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem;">
+                      <span>Rice Bran (13% CP)</span> <span id="sbBranVal">20%</span>
+                  </label>
+                  <input type="range" id="sbBran" class="sandbox-slider" min="0" max="100" value="20" style="width: 100%;">
+              </div>
+          </div>
+
+          <div class="card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <div style="text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                  <p style="margin: 0; font-size: 0.9rem; color: #666;">Total Inclusion Check</p>
+                  <h2 id="sbTotal" style="margin: 5px 0; font-size: 2rem;">100%</h2>
+                  <p id="sbWarning" style="margin: 0; font-size: 0.8rem; color: #d32f2f; display: none;">Warning: Must equal exactly 100%</p>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                  <span style="color: #666;">Est. Crude Protein (Target: 20%):</span>
+                  <strong id="sbProtein" style="color: #2E7D32; font-size: 1.1rem;">--%</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                  <span style="color: #666;">Est. Cost per kg:</span>
+                  <strong id="sbCost" style="font-size: 1.1rem;">₱--</strong>
+              </div>
+          </div>
+    </div> 
+
+    <div id="subscriptionView" class="page-section" style="display: none;">
+        <div class="enterprise-card" style="padding: 15px; border-bottom: 1px solid #eee; text-align: center;">
+            <h2 style="margin:0; color: #15803d;">Upgrade to Premium</h2>
+            <p style="color: #64748b; margin-top: 5px;">Unlock the full power of Unifarm Hub to maximize your harvest.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px; padding: 20px;">
+            
+            <div style="border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; background: #f8fafc;">
+                <h3 style="margin: 0; color: #334155;">Basic Farmer</h3>
+                <h2 style="margin: 10px 0; color: #0f172a;">₱0 <span style="font-size: 0.9rem; color: #64748b;">/ forever</span></h2>
+                <ul style="color: #475569; padding-left: 20px; font-size: 0.95rem;">
+                    <li>Basic Inventory Tracking</li>
+                    <li>Regional Outbreak Map</li>
+                    <li>Standard Support</li>
+                </ul>
+                <button disabled style="width: 100%; padding: 12px; margin-top: 10px; background: #e2e8f0; color: #64748b; border: none; border-radius: 8px; font-weight: bold;">Current Plan</button>
+            </div>
+
+            <div style="border: 2px solid #22c55e; border-radius: 12px; padding: 20px; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <div style="background: #22c55e; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-bottom: 10px;">RECOMMENDED</div>
+                <h3 style="margin: 0; color: #15803d;">Agri-Business Pro</h3>
+                <h2 style="margin: 10px 0; color: #0f172a;">₱499 <span style="font-size: 0.9rem; color: #64748b;">/ month</span></h2>
+                <ul style="color: #475569; padding-left: 20px; font-size: 0.95rem;">
+                    <li><strong>Everything in Basic</strong></li>
+                    <li>A.I. Feed Optimizer Engine</li>
+                    <li>Harvest Predictor & Forecaster</li>
+                    <li>Cloud Data Sync (Multi-device)</li>
+                </ul>
+                <button id="btnUpgradePro" style="width: 100%; padding: 12px; margin-top: 10px; background: #15803d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">Upgrade Now</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="settingsView" class="page-section settings-section">
+      <div class="card settings-card">
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #166534;">Unlock Your Farm's Potential</h3>
+            <p style="color: #15803d; font-size: 0.9rem; margin: 10px 0;">Get A.I. predictions and cloud sync.</p>
+            <button id="btnOpenSubscription" style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);">
+                ⭐ View Premium Plans
+            </button>
+        </div> 
+        <div class="card settings-card" style="margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #334155;">☁️ Cloud Data Sync</h3>
+            <p style="color: #64748b; font-size: 0.9rem;">Safely back up your offline field scans to your Premium Cloud account.</p>
+            <button id="btnSyncData" class="btn-elegant-solid" style="width: 100%; padding: 12px; background-color: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <span id="syncIcon">🔄</span>
+                <span id="syncText">Sync Offline Data to Cloud</span>
+            </button>
+        </div>
+        <h2 class="settings-title">⚙️ Feed Matrix Database</h2>
+        <p class="settings-description">Manage your cloud database. Changes here affect the Optimizer.</p>
+
+        <form id="matrixForm" class="matrix-form">
+          <h3 class="matrix-form-title">Add or Edit Ingredient</h3>
+          <div class="opt-grid">
+            <div class="input-group">
+              <label for="matName" class="bold-label">Ingredient Name</label>
+              <input type="text" id="matName" class="form-control" placeholder="e.g., Corn" required>
+            </div>
+            <div class="input-group">
+              <label for="matCost" class="bold-label">Cost (₱)</label>
+              <input type="number" id="matCost" class="form-control" step="0.01" required>
+            </div>
+            <div class="input-group">
+              <label for="matProtein" class="bold-label">Protein (%)</label>
+              <input type="number" id="matProtein" class="form-control" step="0.1">
+            </div>
+            <div class="input-group">
+              <label for="matEnergy" class="bold-label">Energy (kcal)</label>
+              <input type="number" id="matEnergy" class="form-control" step="1">
+            </div>
+            <div class="input-group">
+              <label for="matCalcium" class="bold-label">Calcium (%)</label>
+              <input type="number" id="matCalcium" class="form-control" step="0.01">
+            </div>
+            <div class="input-group">
+              <label for="matPhos" class="bold-label">Phos (%)</label>
+              <input type="number" id="matPhos" class="form-control" step="0.01">
+            </div>
+            <div class="input-group">
+              <label for="matLysine" class="bold-label">Lysine (%)</label>
+              <input type="number" id="matLysine" class="form-control" step="0.01">
+            </div>
+            <div class="input-group">
+              <label for="matMeth" class="bold-label">Meth (%)</label>
+              <input type="number" id="matMeth" class="form-control" step="0.01">
+            </div>
+            <div class="input-group">
+              <label for="matFiber" class="bold-label">Fiber (%)</label>
+              <input type="number" id="matFiber" class="form-control" step="0.1">
+            </div>
+            <div class="input-group">
+              <label>Max (%)</label>
+              <input type="number" id="matMax" class="form-control" step="1" placeholder="100">
+            </div>
+          </div>
+          <button type="submit" class="primary-btn matrix-submit-btn">Save to Cloud</button>
+        </form>
+
+        <h3 class="matrix-dictionary-title">Current Cloud Dictionary</h3>
+        <div style="width: 100%; overflow-x: auto; padding-bottom: 10px;">
+          <div id="matrixDisplayList" class="matrix-display-list" style="min-width: 600px;">
+            <p class="matrix-loading-text">Loading database from Supabase...</p>
+          </div>
+        </div>
+      </div>
+    </div> 
+  </main> 
+
+  <nav class="bottom-nav" style="display: flex; justify-content: space-around; background: white; border-top: 1px solid #ddd; padding: 10px 0; position: fixed; bottom: 0; width: 100%;">
+      <button class="nav-btn" data-target="dashboardView" style="background: none; border: none; text-align: center; cursor: pointer;">
+          <span style="font-size: 1.5rem;">🏠</span><br>
+          <span style="font-size: 0.7rem; color: #666;">Home</span>
+      </button>
+
+      <button class="nav-btn" data-target="inventoryView" style="background: none; border: none; text-align: center; cursor: pointer;">
+          <span style="font-size: 1.5rem;">📦</span><br>
+          <span style="font-size: 0.7rem; color: #666;">Inventory</span>
+      </button>
+
+      <button class="nav-btn" data-target="toolsView" style="background: none; border: none; text-align: center; cursor: pointer;">
+          <span style="font-size: 1.5rem;">🧰</span><br>
+          <span style="font-size: 0.7rem; color: #2E7D32; font-weight: bold;">Tools</span>
+      </button>
+
+      <button class="nav-btn" data-target="mapView" style="background: none; border: none; text-align: center; cursor: pointer;">
+          <span style="font-size: 1.5rem;">📍</span><br>
+          <span style="font-size: 0.7rem; color: #666;">Map</span>
+      </button>
+
+      <button class="nav-btn" data-target="settingsView" style="background: none; border: none; text-align: center; cursor: pointer;">
+          <span style="font-size: 1.5rem;">⚙️</span><br>
+          <span style="font-size: 0.7rem; color: #666;">Settings</span>
+      </button>
+  </nav>
+
+  <div id="limitsModal" class="modal-overlay hidden-section">
+    <div class="modal-content">
+      <h3 id="modalIngredientName">Ingredient Limits</h3>
+      <p class="text-muted">Set specific maximum inclusion percentages based on the target animal and stage.</p>
+      
+      <div class="limits-grid">
+        <div class="input-group">
+          <label>Global Default (%)</label>
+          <input type="number" id="limDefault" class="form-control limit-input" title="Global Default maximum inclusion percentage">
+        </div>
+        <hr>
+        <h4>Poultry Specific</h4>
+        <div class="input-group">
+          <label>Broiler Starter (%)</label>
+          <input type="number" id="limBroilerStarter" class="form-control limit-input" title="Broiler Starter maximum inclusion percentage">
+        </div>
+        <div class="input-group">
+          <label>Broiler Finisher (%)</label>
+          <input type="number" id="limBroilerFinisher" class="form-control limit-input" title="Broiler Finisher maximum inclusion percentage">
+        </div>
+        <div class="input-group">
+          <label>Layer Peak (%)</label>
+          <input type="number" id="limLayerPeak" class="form-control limit-input" title="Layer Peak maximum inclusion percentage">
+        </div>
+        <hr>
+        <h4>Swine Specific</h4>
+        <div class="input-group">
+          <label>Swine Starter (%)</label>
+          <input type="number" id="limSwineStarter" class="form-control limit-input" title="Swine Starter maximum inclusion percentage">
+        </div>
+        <div class="input-group">
+          <label>Swine Finisher (%)</label>
+          <input type="number" id="limSwineFinisher" class="form-control limit-input" title="Swine Finisher maximum inclusion percentage">
+        </div>
+      </div>
+
+      <div class="modal-actions modal-btn-container">
+        <button id="saveLimitsBtn" class="btn btn-primary btn-fill">Save Limits</button>
+        <button id="closeLimitsBtn" class="btn btn-secondary btn-fill btn-light-gray">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="assumptionsModal" class="modal-overlay hidden-section">
+  <div class="modal-content">
+    <h3>⚙️ Market Assumptions</h3>
+    <p class="help-text-small">Update current market prices and fixed costs to ensure accurate ROI predictions for your specific farm.</p>
+    
+    <div class="limits-grid modal-scroll-grid">
+      
+      <h5 class="modal-h5 text-green mt-10">Revenue Assumption</h5>
+      <div class="input-group">
+        <label for="asmPrice">Crop Sell Price (PHP/Ton)</label>
+        <input type="number" id="asmPrice" class="form-control limit-input" value="18000">
+      </div>
+
+      <h5 class="modal-h5 text-blue">Fixed & Prep Costs (PHP/ha)</h5>
+      <div class="input-group">
+        <label for="asmLandPrep">Land Preparation</label>
+        <input type="number" id="asmLandPrep" class="form-control limit-input" value="8500">
+      </div>
+      <div class="input-group">
+        <label for="asmSeeds">Seeds Cost</label>
+        <input type="number" id="asmSeeds" class="form-control limit-input" value="4500">
+      </div>
+      <div class="input-group">
+        <label for="asmPlanting">Sowing/Planting Labor</label>
+        <input type="number" id="asmPlanting" class="form-control limit-input" value="3500">
+      </div>
+      <div class="input-group">
+        <label for="asmHarvest">Harvesting & Hauling</label>
+        <input type="number" id="asmHarvest" class="form-control limit-input" value="9000">
+      </div>
+
+      <h5 class="modal-h5 text-orange">Material Costs</h5>
+      <div class="input-group">
+        <label for="asmUrea">Urea (PHP/50kg Bag)</label>
+        <input type="number" id="asmUrea" class="form-control limit-input" value="1450">
+      </div>
+      <div class="input-group">
+        <label for="asmComplete">Complete (PHP/50kg)</label>
+        <input type="number" id="asmComplete" class="form-control limit-input" value="1650">
+      </div>
+      <div class="input-group">
+        <label for="asmInsecticideMat">Insecticide (PHP/Bottle)</label>
+        <input type="number" id="asmInsecticideMat" class="form-control limit-input" value="850">
+      </div>
+      <div class="input-group">
+        <label for="asmFungicideMat">Fungicide (PHP/Bottle)</label>
+        <input type="number" id="asmFungicideMat" class="form-control limit-input" value="1100">
+      </div>
+      <div class="input-group">
+        <label for="asmHerbicideMat">Herbicide (PHP/Bottle)</label>
+        <input type="number" id="asmHerbicideMat" class="form-control limit-input" value="900">
+      </div>
+
+      <h5 class="modal-h5 text-red">Application Labor</h5>
+      <div class="input-group">
+        <label for="asmFertLabor">Fertilizer Labor</label>
+        <input type="number" id="asmFertLabor" class="form-control limit-input" value="500">
+      </div>
+      <div class="input-group">
+        <label for="asmSprayLabor">Spraying Labor</label>
+        <input type="number" id="asmSprayLabor" class="form-control limit-input" value="600">
+      </div>
+      
+      <h5 class="modal-h5 text-slate">Utilities</h5>
+      <div class="input-group">
+        <label for="asmWater">Irrigation (PHP/mm)</label>
+        <input type="number" id="asmWater" class="form-control limit-input" value="20">
+      </div>
+
+    </div>
+
+    <div class="modal-actions modal-btn-container">
+      <button id="saveAssumptionsBtn" class="btn btn-primary btn-fill">Save</button>
+      <button id="closeAssumptionsBtn" class="btn btn-secondary btn-fill btn-light-gray">Cancel</button>
+    </div>
+  </div>
+  </div>
+
+  <div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: white; width: 100%; max-width: 500px; border-radius: 12px; padding: 20px; max-height: 80vh; display: flex; flex-direction: column;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+        <h3 style="margin: 0; color: #1e293b;">📍 Historical Field Log</h3>
+        <button id="closeHistoryBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      
+      <div id="historyList" style="overflow-y: auto; flex: 1; padding: 10px 0; display: flex; flex-direction: column; gap: 15px;">
+        </div>
+      
+      <button id="clearHistoryBtn" class="btn btn-secondary btn-fill" style="margin-top: 15px; background-color: #fee2e2; color: #d32f2f; border: 1px solid #f87171; padding: 10px; border-radius: 6px; cursor: pointer;">🗑️ Clear Log</button>
+    
+    </div>
+  </div>    
+
+  <script src="https://cdn.jsdelivr.net/npm/javascript-lp-solver/prod/solver.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="map.js"></script>
+  <script type="module" src="script.js"></script>
+
+</body>
+</html>

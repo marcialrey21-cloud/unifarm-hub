@@ -1,0 +1,1018 @@
+/* ========================================================= */
+/* 📱 UNIFARM HUB: MASTER STYLESHEET                         */
+/* ========================================================= */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8fafc;
+    overflow: hidden; /* Prevents double scrollbars */
+}
+
+/* 3. CONTENT AREAS */
+main.app-content {
+    height: calc(100vh - 70px); /* Subtracts bottom nav height */
+    overflow-y: auto;
+    position: relative;
+}
+/* Mobile-first reset to remove default browser spacing */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* This tells the phone to use its native app font */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f7f6;
+  color: #333;
+}
+
+/* --- APP STRUCTURE --- */
+.app-header {
+  background-color: #2e7d32;
+  color: white;
+  padding: 15px 20px;
+  display: flex;             /* 🟢 NEW: Turns the header into a flexible row */
+  justify-content: space-between; /* 🟢 NEW: Pushes Title left, Button right */
+  align-items: center;       /* 🟢 NEW: Vertically centers them */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.app-header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+/* --- NEW HEADER LOGOUT BUTTON --- */
+.header-logout-btn {
+  background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.header-logout-btn:active {
+  background-color: rgba(255, 255, 255, 0.4); /* Highlights when tapped */
+} 
+/* --- HEADER BUTTON GROUP --- */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-toggle-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.header-toggle-btn.worker-active {
+  background-color: #f57f17; /* Warning Orange */
+}
+.app-content {
+  padding: 20px;
+  text-align: center;
+  margin-top: 20px;
+  padding-bottom: 90px;
+}
+
+/* --- THE HIDING/SHOWING MAGIC --- */
+.page-section {
+  display: none;
+}
+.page-section.active-section {
+  display: block !important;
+}  
+/* --- NAVIGATION TAB STYLES --- */
+.app-nav {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.nav-tab {
+  flex: 1;
+  padding: 15px 10px;
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: bold;
+  color: #64748b;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-tab:hover { background: #f8fafc; }
+.nav-tab.active { color: #2e7d32; border-bottom: 3px solid #2e7d32; }
+
+/* --- BOTTOM NAVIGATION BAR STYLES --- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #888;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.nav-icon { font-size: 20px; margin-bottom: 3px; }
+.nav-item.active { color: #2e7d32; font-weight: bold; }
+.nav-item.active .nav-icon { transform: scale(1.1); }
+
+/* --- FORM & CARD STYLES --- */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  text-align: left;
+}
+
+.card h2 { font-size: 20px; margin-bottom: 5px; }
+.subtitle { font-size: 14px; color: #666; margin-bottom: 20px; }
+
+.input-group { margin-bottom: 15px; }
+.input-row { display: flex; gap: 10px; }
+.input-row .input-group { flex: 1; }
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.dark-label { color: #0f172a; }
+.danger-label { color: #d32f2f; }
+
+input, .form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px; /* Prevents iPhones from auto-zooming */
+  background-color: #fafafa;
+  font-family: inherit;
+}
+
+input:focus, .form-control:focus {
+  outline: none;
+  border-color: #2e7d32;
+  background-color: white;
+}
+
+/* --- BUTTON STYLES --- */
+.primary-btn {
+  width: 100%;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.primary-btn:active { background-color: #1b5e20; }
+
+.secondary-btn {
+  width: 100%;
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.secondary-btn:active { background-color: #e2e6ea; }
+
+.remove-btn {
+  color: white;
+  background: #dc3545;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.delete-btn:active { background-color: #a71d2a; }
+
+.deduct-btn {
+  background: #f57c00;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+.deduct-btn:hover { background: #e65100; }
+
+#downloadBtn { margin-top: 15px; }
+
+/* --- DASHBOARD & INVENTORY --- */
+.dashboard-card {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.dashboard-card h2 { font-size: 36px; margin-top: 0; }
+.dashboard-subtitle { margin-bottom: 5px; font-size: 14px; opacity: 0.9; }
+
+.inventory-card { margin-top: 20px; }
+.empty-msg { color: #666; font-size: 14px; }
+.inventory-item {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.warning-badge {
+  background-color: #ffeeba;
+  color: #856404;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: bold;
+}
+
+/* --- FEED FORMULATOR & OPTIMIZER GENERAL --- */
+.formulator-actions { margin-top: 15px; display: flex; gap: 10px; }
+.add-row-btn {
+  background: #e2e8f0;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+.calculate-btn { flex-grow: 1; }
+.dynamic-row { margin-top: 10px; }
+.protein-input-group { display: flex; gap: 5px; align-items: center; }
+.protein-input-group input { flex-grow: 1; }
+
+.result-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  border: 1px solid #c8e6c9;
+}
+.result-box h3 { margin-top: 0; color: #2e7d32; }
+.result-box strong { font-size: 1.2em; }
+.hidden-result { display: none; }
+.result-divider { border: 0; border-top: 1px solid #c8e6c9; margin: 10px 0; }
+.success-text { color: #2e7d32; }
+
+/* --- ADVANCED OPTIMIZER SPECIFIC --- */
+.target-goals-box {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.opt-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Allows stacking on very small screens */
+  gap: 10px;
+  width: 100%; /* The bug is fixed here! */
+  margin-bottom: 15px;
+}
+
+.opt-section-title { margin-top: 0; color: #0f172a; font-size: 16px; }
+.no-margin-bottom { margin-bottom: 0 !important; }
+
+.species-select-wrapper { width: 250px; flex-grow: 1; max-width: 300px; }
+.species-select { border-color: #2e7d32; font-weight: bold; color: #2e7d32; }
+
+/* The Grid for the 8 Targets */
+.opt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
+/* Remove bottom margin inside the grid so items align perfectly */
+.opt-grid .input-group { margin-bottom: 0; }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.opt-scrollable-list { min-width: 1000px; }
+.opt-grid-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr 1fr 1fr 1fr 1fr 1fr 1fr 40px;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.header-row { font-weight: bold; font-size: 12px; color: #64748b; text-align: center; }
+.opt-actions { margin-top: 15px; }
+
+/* --- PREDICTOR STYLES --- */
+.predictor-card { margin-top: 20px; }
+.prediction-title { color: #1976d2; margin-top: 0; }
+.large-text { font-size: 1.2em; }
+.warning-text { color: #d32f2f; }
+.predictor-spacing { margin-top: 20px; }
+.calc-growth-spacing { margin-top: 15px; }
+
+.feed-toggle-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: #e8f5e9;
+  border-radius: 6px;
+  border: 1px solid #c8e6c9;
+}
+.feed-checkbox { margin-right: 8px; transform: scale(1.2); }
+.feed-label { font-weight: bold; color: #2e7d32; cursor: pointer; }
+.feed-stats-text { margin: 5px 0 0 25px; font-size: 13px; color: #555; display: none; }
+
+/* --- SETTINGS STYLES --- */
+.settings-tip { font-size: 13px; color: #64748b; margin-top: 0; }
+.settings-grid-spacing { margin-bottom: 15px; }
+.settings-list-title { margin-top: 30px; }
+
+/* --- EXPORT BUTTON STYLE --- */
+.export-btn {
+  margin-top: 15px;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+/* --- 🔐 AUTHENTICATION SCREEN --- */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75); /* Dark semi-transparent background */
+  -webkit-backdrop-filter: blur(5px); /* Safari 9+ and iOS 9+ support */
+  backdrop-filter: blur(5px); /* Blurs the app behind it */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Forces it to the very front */
+}
+
+.auth-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* A class we will use in JS to hide the screen once logged in */
+.hidden-auth {
+  display: none !important;
+}
+/* --- SETTINGS LOGOUT STYLES --- */
+.logout-divider {
+  margin: 30px 0; 
+  border: 0; 
+  border-top: 1px solid #eee;
+}
+
+.logout-btn {
+  background-color: #d32f2f;
+  margin-bottom: 20px;
+}
+
+.logout-btn:active {
+  background-color: #b71c1c; /* Darkens slightly when tapped */
+}
+/* --- AUDIT TRAIL STYLES --- */
+.activity-log-container {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f8fafc;
+}
+
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.log-time {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+  margin-top: 4px;
+}
+/* --- WORKER MODE STYLES (FARM TEAMS) --- */
+/* 1. Hide all financial data completely */
+body.worker-mode .financial-data {
+  display: none !important;
+}
+
+/* 2. Disable sensitive buttons (like Delete) */
+body.worker-mode .worker-restricted {
+  pointer-events: none !important;
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+/* --- V2.0 GLOBAL CONTEXT BAR --- */
+.context-bar {
+  background-color: #e8f5e9; /* Light green tint */
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #2e7d32;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.context-label {
+  font-weight: 700;
+  color: #2e7d32;
+  margin: 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.species-dropdown {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #a5d6a7;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.species-dropdown:focus {
+  outline: none;
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+}
+
+/* 2. SPLASH SCREEN (Independent Layer) */
+.splash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #166534; /* Solid Green */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease, visibility 0.5s;
+}
+
+/* This is the class that hides it */
+.splash-overlay.hide-splash {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* Allows clicks to pass through once hidden */
+}
+
+.splash-content {
+  text-align: center;
+  color: white;
+  animation: floatIn 1s ease-out forwards;
+}
+
+/* The new rules for your custom image logo */
+.splash-logo-img {
+  max-width: 200px; /* Keeps the logo a professional size */
+  height: auto;
+  margin-bottom: 15px;
+  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3)); /* Adds a premium 3D shadow */
+}
+
+.splash-title {
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.splash-subtitle {
+  font-size: 1rem;
+  color: #c8e6c9;
+  margin-top: 5px;
+  margin-bottom: 30px;
+}
+
+/* The Loading Spinner */
+.splash-loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #ffffff;
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* The class JavaScript will use to hide it */
+.hide-splash {
+  opacity: 0;
+  visibility: hidden;
+}
+/* --- DYNAMIC ANIMAL BANNERS --- */
+.module-banner {
+  width: 100%;
+  height: 200px; /* Keeps the banner wide and cinematic */
+  object-fit: cover; /* Prevents the image from squishing */
+  border-radius: 8px; /* Matches the rounded corners of your cards */
+  margin-bottom: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: block;
+}
+/* --- 🧑‍🌾 USER PROFILE DASHBOARD STYLES --- */
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.user-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background-color: #e2e8f0;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  /* NEW: Makes it look like a button */
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* NEW: Makes it "pop" slightly when you hover over it */
+.user-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.user-greeting-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.greeting-text {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 2px;
+  color: #e8f5e9; /* Light green for contrast */
+}
+
+.user-profile-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+}
+
+.dashboard-divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 15px;
+}
+
+/* =========================================
+   ADVANCED LIMITS MODAL STYLES
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* Darkens the background */
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px); /* Blurs the app behind it */
+  z-index: 9999; /* Ensures it sits on top of everything */
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  max-height: 85vh;
+  overflow-y: auto; /* Adds a scrollbar if the screen is small */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: modalPop 0.3s ease-out;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #1b5e20;
+}
+
+.modal-content .text-muted {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.limits-grid h4 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+  color: #2c3e50;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 5px;
+}
+
+.limit-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.limit-input:focus {
+  border-color: #1b5e20;
+  outline: none;
+}
+
+.modal-actions {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+}
+/* --- Elegant Action Buttons --- */
+.action-buttons-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.btn-elegant-outline {
+  background-color: transparent;
+  color: #2e7d32;
+  border: 2px solid #2e7d32;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-elegant-outline:hover {
+  background-color: #f1f8f1;
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.15);
+}
+
+.btn-elegant-solid {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-elegant-solid:hover {
+  background-color: #1b5e20;
+  box-shadow: 0 4px 12px rgba(27, 94, 32, 0.25);
+  transform: translateY(-1px);
+}
+
+.hidden-input {
+  display: none;
+}
+/* --- Dairy Module Helpers --- */
+.hidden-section {
+  display: none;
+}
+
+.help-text-small {
+  font-size: 0.9rem; 
+  color: #555; 
+  margin-bottom: 15px;
+}
+
+.btn-dairy-blue {
+  background-color: #0277bd !important; /* The !important ensures it overrides the default primary-btn green */
+}
+
+.mt-15 {
+  margin-top: 15px;
+}
+/* --- Modal Button Helpers --- */
+.modal-btn-container {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-fill {
+  flex: 1;
+}
+
+.btn-light-gray {
+  background-color: #e2e8f0 !important;
+  color: #333 !important;
+}
+/* --- Enterprise Simulator Styling --- */
+.sim-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #e2e8f0;
+  outline: none;
+  transition: background 0.3s;
+}
+
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0277bd;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.1s ease;
+  border: 2px solid white;
+}
+
+.sim-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #01579b;
+}
+
+.enterprise-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+  border-left: 5px solid #2e7d32;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+}
+
+.metric-label {
+  margin: 0; 
+  color: #64748b; 
+  font-size: 0.85rem;
+  font-weight: 700; 
+  text-transform: uppercase; 
+  letter-spacing: 1.5px;
+}
+/* --- Simulator & Modal Clean UI Classes --- */
+.sim-header { margin-bottom: 20px; padding: 0 10px; }
+.sim-title { color: #2e7d32; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+.m-0 { margin: 0 !important; }
+
+.sim-layout { display: flex; flex-wrap: wrap; gap: 24px; padding: 0 10px; }
+.sim-panel-left { flex: 1; min-width: 320px; padding: 25px; border-radius: 12px; border-left: none; border-top: 4px solid #0277bd; max-height: 80vh; overflow-y: auto; }
+.sim-panel-right { flex: 1.5; min-width: 320px; display: flex; flex-direction: column; gap: 24px; }
+
+.sim-controls-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; position: sticky; top: 0; background: white; z-index: 10; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+.sim-controls-title { margin: 0; color: #1e293b; font-size: 1.15rem; }
+.btn-sim-settings { padding: 6px 12px; font-size: 0.8rem; }
+
+.sim-section-header { color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; }
+.sim-input-row { margin-bottom: 20px; }
+.sim-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.sim-label { font-weight: 600; color: #475569; margin: 0; }
+.sim-val-blue { color: #0277bd; font-weight: 700; font-size: 0.9rem; }
+.sim-val-red { color: #d32f2f; font-weight: 700; font-size: 0.9rem; }
+
+.sim-stats-row { display: flex; gap: 24px; flex-wrap: wrap; }
+.sim-stat-card { flex: 1; min-width: 200px; padding: 25px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.border-green { border-left: 5px solid #2e7d32; }
+.border-blue { border-left: 5px solid #0277bd; }
+
+.sim-stat-val-green { font-size: 2.3rem; color: #2e7d32; margin: 10px 0 0 0; font-weight: 800; }
+.sim-stat-val-blue { font-size: 2rem; color: #0277bd; margin: 10px 0 0 0; font-weight: 800; }
+.sim-roi-badge { background: #e8f5e9; padding: 4px 14px; border-radius: 20px; margin-top: 12px; display: inline-block; }
+.sim-roi-text { margin: 0; font-size: 0.9rem; font-weight: 700; color: #2e7d32; }
+
+.sim-chart-card { flex: 1; padding: 25px; border-radius: 12px; border-left: none; display: flex; flex-direction: column; align-items: center; min-height: 280px; }
+.sim-chart-title { align-self: flex-start; margin-bottom: 20px; }
+.sim-chart-wrapper { width: 100%; max-width: 380px; height: 220px; position: relative; }
+
+/* Modal specific cleaners */
+.modal-scroll-grid { margin-top: 15px; max-height: 60vh; overflow-y: auto; padding-right: 10px; }
+.modal-h5 { grid-column: 1 / -1; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 20px; margin-bottom: 0; }
+.mt-10 { margin-top: 10px; }
+.text-green { color: #2e7d32; }
+.text-blue { color: #0277bd; }
+.text-orange { color: #f59e0b; }
+.text-red { color: #ef4444; }
+.text-slate { color: #64748b; }
+/* --- AI Crop Scanner UI --- */
+.scanner-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+#cameraFeed {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border: 2px solid rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+.viewfinder-corner {
+  position: absolute;
+  width: 40px; height: 40px;
+  border-color: #0277bd;
+  border-style: solid;
+}
+.tl { top: 10px; left: 10px; border-width: 4px 0 0 4px; }
+.tr { top: 10px; right: 10px; border-width: 4px 4px 0 0; }
+.bl { bottom: 10px; left: 10px; border-width: 0 0 4px 4px; }
+.br { bottom: 10px; right: 10px; border-width: 0 4px 4px 0; }
+
+.laser-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: #38bdf8;
+  box-shadow: 0 0 10px 2px rgba(56, 189, 248, 0.8);
+  top: 0;
+  display: none; /* Hidden until scanning starts */
+}
+
+.scanning-active .laser-line {
+  display: block;
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+#outbreakMap {
+    height: 500px; /* Rigid, predictable height */
+    width: 100%;
+    background: #e2e8f0;
+}
+
+.leaflet-container {
+    height: 100% !important;
+    width: 100% !important;
+}
+/* Ensure the Leaflet tiles appear correctly */
+.leaflet-container {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+/* Ensure the Map page-section expands to show the map */
+#mapView.active-section {
+    display: flex !important;
+    flex-direction: column;
+}
+/* Force the Map View to the front when active */
+#mapView.active-section {
+    display: block !important;
+    position: relative;
+    z-index: 100 !important;
+    background: #f8fafc !important; /* light gray so we can see the container */
+    min-height: 80vh;
+}
+
+/* Ensure the Leaflet map itself has a clear layer */
+.leaflet-container {
+    z-index: 1 !important;
+}
+.page-section.active-section {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+/* Fix for bottom navigation overlapping content */
+.page-section {
+  padding-bottom: 90px !important; /* Creates space for the bottom nav */
+}
