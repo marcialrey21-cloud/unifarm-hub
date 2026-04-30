@@ -13,22 +13,17 @@ serve(async (req) => {
   }
 
   try {
-    // 1. Get the data sent from your frontend app (subscription.js)
-    const { planId, amount, userId } = await req.json()
+    // 1. SURGICAL FIX: Now we extract ALL data, including the Netlify URLs!
+    const { planId, amount, userId, successUrl, cancelUrl } = await req.json()
 
-    // 2. Put your PayMongo Test Secret Key here!
     const PAYMONGO_SECRET_KEY = Deno.env.get('PAYMONGO_SECRET_KEY');
-    
-    // PayMongo requires the secret key to be Base64 encoded for basic authentication
     const encodedKey = btoa(PAYMONGO_SECRET_KEY + ":");
-
-    // 3. PayMongo expects amounts in cents (e.g., ₱499.00 becomes 49900)
     const amountInCents = Math.round(amount * 100);
 
-    console.log(`Generating PayMongo link for User: ${userId}, Amount: ${amountInCents}`);
+    console.log(`Generating PayMongo Checkout for User: ${userId}, Amount: ${amountInCents}`);
 
-    // 4. Send the request to PayMongo's secure API
-    const paymongoResponse = await fetch('https://api.paymongo.com/v1/links', {
+    // 2. UPGRADE: We switch to the 'checkout_sessions' API to support dynamic redirects
+    const paymongoResponse = await fetch('https://api.paymongo.com/v1/checkout_sessions', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -38,9 +33,23 @@ serve(async (req) => {
       body: JSON.stringify({
         data: {
           attributes: {
-            amount: amountInCents,
-            description: `Unifarm Hub Premium - ${planId}`,
-            remarks: `User ID: ${userId}`
+            send_email_receipt: false,
+            show_description: true,
+            show_line_items: true,
+            payment_method_types: ['gcash', 'paymaya', 'card'], // The payment options you want to accept
+            line_items: [
+              {
+                currency: 'PHP',
+                amount: amountInCents,
+                description: `Unifarm Hub Premium - ${planId}`,
+                name: 'Premium Plan Upgrade',
+                quantity: 1
+              }
+            ],
+            // 3. INJECTION: We pass the live Netlify URLs directly to PayMongo!
+            success_url: successUrl,
+            cancel_url: cancelUrl,
+            reference_number: `USER_${userId}_${Date.now()}` // Helpful for your accounting
           }
         }
       })
@@ -48,12 +57,11 @@ serve(async (req) => {
 
     const paymongoData = await paymongoResponse.json();
 
-    // Catch any errors PayMongo sends back
     if (!paymongoResponse.ok) {
       throw new Error(JSON.stringify(paymongoData.errors));
     }
 
-    // 5. Extract the secure checkout URL and send it back to the frontend
+    // Extract the secure checkout URL from the Checkout Session response
     const checkoutUrl = paymongoData.data.attributes.checkout_url;
 
     return new Response(
