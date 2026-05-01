@@ -3,16 +3,61 @@ import { supabaseClient } from './db.js';
 import { UnifarmApp } from './script.js';
 
 export const AuthController = {
+  // NEW: Track whether the user is trying to Log In or Register
+  isLoginMode: true, 
+
   init: function() {
     const authForm = document.getElementById('authForm');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Attach our specific logic to the buttons
+    // NEW: Automatically create a toggle link below your button if it doesn't exist yet
+    if (authForm && !document.getElementById('authToggleBtn')) {
+      const toggleContainer = document.createElement('div');
+      toggleContainer.style.marginTop = '15px';
+      toggleContainer.style.textAlign = 'center';
+
+      const toggleBtn = document.createElement('button');
+      toggleBtn.id = 'authToggleBtn';
+      toggleBtn.type = 'button'; // Prevent form submission
+      toggleBtn.style.background = 'none';
+      toggleBtn.style.border = 'none';
+      toggleBtn.style.color = '#1976d2';
+      toggleBtn.style.cursor = 'pointer';
+      toggleBtn.style.textDecoration = 'underline';
+      toggleBtn.innerText = "Don't have an account? Register here.";
+
+      toggleBtn.addEventListener('click', () => this.toggleMode());
+      toggleContainer.appendChild(toggleBtn);
+      authForm.appendChild(toggleContainer);
+
+      // Update initial submit button text to be specific
+      const submitBtn = document.getElementById('authSubmitBtn');
+      if (submitBtn) submitBtn.innerText = 'Log In';
+    }
+
+    // Attach our specific logic to the forms and buttons
     if (authForm) {
       authForm.addEventListener('submit', (e) => this.handleLoginSubmit(e));
     }
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => this.handleLogout());
+    }
+  },
+
+  // NEW: Function to flip between Login and Register modes
+  toggleMode: function() {
+    this.isLoginMode = !this.isLoginMode;
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const toggleBtn = document.getElementById('authToggleBtn');
+
+    if (this.isLoginMode) {
+      submitBtn.innerText = 'Log In';
+      toggleBtn.innerText = "Don't have an account? Register here.";
+      this.showMessage("", "clear");
+    } else {
+      submitBtn.innerText = 'Register';
+      toggleBtn.innerText = "Already have an account? Log in here.";
+      this.showMessage("", "clear");
     }
   },
 
@@ -32,38 +77,37 @@ export const AuthController = {
     this.showMessage("", "clear");
 
     try {
-      // 1. Attempt to Login
-      const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
+      if (this.isLoginMode) {
+        // --- LOG IN FLOW ---
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
 
-      if (signInError) {
-        // 2. If login fails, try to Register (Auto-Signup Flow)
-        if (signInError.message.toLowerCase().includes("invalid login") || 
-            signInError.message.toLowerCase().includes("not found") ||
-            signInError.message.toLowerCase().includes("invalid credentials")) {
-          
-          const { error: signUpError } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-          });
+        if (error) throw error; // If login fails, throw the exact error to the screen
+        
+        // Login Success!
+        this.handleLoginSuccess(data.user);
 
-          if (signUpError) throw signUpError;
-          this.showMessage("Account created! Check your email to confirm.", "success");
-          
-        } else {
-          throw signInError; // Throw other errors (like rate limits)
-        }
       } else {
-        // 3. Login Success!
-        this.handleLoginSuccess(signInData.user);
+        // --- REGISTER FLOW ---
+        const { error } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+        });
+
+        if (error) throw error;
+        
+        this.showMessage("Account created! Check your email to confirm.", "success");
+        // Automatically switch back to login mode so they are ready to log in after verifying
+        this.toggleMode(); 
       }
     } catch (err) {
       console.error("Auth Error:", err);
-      this.showMessage(err.message, "error");
+      // This will now accurately tell you "Email not confirmed" instead of faking a registration!
+      this.showMessage(err.message, "error"); 
     } finally {
-      submitBtn.innerText = "Log In / Register";
+      submitBtn.innerText = this.isLoginMode ? "Log In" : "Register";
     }
   },
 
@@ -125,7 +169,7 @@ export const AuthController = {
     else if (type === "error") authMessage.style.color = "#d32f2f";
     else authMessage.innerText = ""; 
   },
-  // Add these INSIDE AuthController
+
   enforceRolePermissions: async function() {
     if (!supabaseClient || !supabaseClient.auth) return;
     const { data: { user } } = await supabaseClient.auth.getUser();
