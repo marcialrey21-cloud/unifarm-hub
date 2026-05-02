@@ -243,4 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.PremiumManager = PremiumManager;
     window.FCRController = FCRController;
     window.AppState = AppState;
+
+    if (window.AuthController && typeof window.AuthController.init === 'function') {
+        window.AuthController.init();
+    }
 });
