@@ -247,4 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.AuthController && typeof window.AuthController.init === 'function') {
         window.AuthController.init();
     }
+    // NEW: Wake up the dashboard and navigation buttons!
+    if (window.UnifarmApp && typeof window.UnifarmApp.init === 'function') {
+        window.UnifarmApp.init();
+    }
+    if (window.UIController && typeof window.UIController.init === 'function') {
+        window.UIController.init();
+    }
 });

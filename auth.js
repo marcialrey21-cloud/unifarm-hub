@@ -42,6 +42,29 @@ export const AuthController = {
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => this.handleLogout());
     }
+    // CHECK FOR EXISTING SESSION ON STARTUP
+    // This ensures the app doesn't hang if the user is logged out or clearing their cache
+    supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
+        const splashScreen = document.getElementById('splashScreen');
+            
+        if (error) {
+            console.error("Session check error:", error);
+        }
+
+        // If there is NO session (the user is logged out or token is cleared)
+        if (!session) {
+            // Hide the splash screen so the manual login form is visible
+            if (splashScreen) {
+                splashScreen.style.display = 'none';
+            }
+        } else {
+             // If there IS a session, your existing onAuthStateChange logic or handleLoginSuccess 
+             // will naturally take over and route them to the dashboard.
+             if (splashScreen) {
+                splashScreen.style.display = 'none';
+             }
+        }
+    });
   },
 
   // NEW: Function to flip between Login and Register modes
@@ -98,14 +121,21 @@ export const AuthController = {
 
         if (error) throw error;
         
-        this.showMessage("Account created! Check your email to confirm.", "success");
+        this.showMessage("Registration successful! Please check your email to verify your account before logging in.", "success");
         // Automatically switch back to login mode so they are ready to log in after verifying
-        this.toggleMode(); 
+        this.toggleMode();
+        
+        return;
       }
     } catch (err) {
-      // console.error("Auth Error:", err);
-      // This will now accurately tell you "Email not confirmed" instead of faking a registration!
-      this.showMessage(err.message, "error"); 
+        console.error("Auth Error:", err);
+
+        const splashScreen = document.getElementById('splashScreen');
+        if (splashScreen) {
+            splashScreen.style.display = 'none';
+        }
+        // This will now accurately tell you "Email not confirmed" instead of faking a registration!
+        this.showMessage(err.message, "error"); 
     } finally {
       submitBtn.innerText = this.isLoginMode ? "Log In" : "Register";
     }
@@ -117,6 +147,7 @@ export const AuthController = {
     
     const authScreen = document.getElementById('authScreen');
     if (authScreen) authScreen.classList.add('hidden-auth');
+    if (authScreen) authScreen.style.display = 'none';
     
     // Tell the master app controller to boot up the farm data!
     UnifarmApp.bootUserServices(user); 
