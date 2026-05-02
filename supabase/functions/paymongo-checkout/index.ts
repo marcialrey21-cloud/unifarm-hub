@@ -13,16 +13,19 @@ serve(async (req) => {
   }
 
   try {
-    // 1. SURGICAL FIX: Now we extract ALL data, including the Netlify URLs!
-    const { planId, amount, userId, successUrl, cancelUrl } = await req.json()
+    // 1. Extract data sent from the frontend
+    const { userId, successUrl, cancelUrl } = await req.json()
 
     const PAYMONGO_SECRET_KEY = Deno.env.get('PAYMONGO_SECRET_KEY');
     const encodedKey = btoa(PAYMONGO_SECRET_KEY + ":");
-    const amountInCents = Math.round(amount * 100);
+    
+    // 2. HARDCODED PRICE: We force this to 49900 centavos (₱499.00) 
+    // This guarantees the Agri-Business Pro price regardless of which button is clicked.
+    const amountInCents = 49900; 
 
     console.log(`Generating PayMongo Checkout for User: ${userId}, Amount: ${amountInCents}`);
 
-    // 2. UPGRADE: We switch to the 'checkout_sessions' API to support dynamic redirects
+    // 3. Create the secure Checkout Session
     const paymongoResponse = await fetch('https://api.paymongo.com/v1/checkout_sessions', {
       method: 'POST',
       headers: {
@@ -36,19 +39,20 @@ serve(async (req) => {
             send_email_receipt: false,
             show_description: true,
             show_line_items: true,
-            payment_method_types: ['gcash', 'paymaya', 'card'], // The payment options you want to accept
+            // 4. UNIFIED PAYMENT METHODS: Forces GCash, Maya, and Cards to appear!
+            payment_method_types: ['card', 'paymaya', 'gcash', 'grab_pay'], 
             line_items: [
               {
                 currency: 'PHP',
                 amount: amountInCents,
-                description: `Unifarm Hub Premium - ${planId}`,
-                name: 'Premium Plan Upgrade',
+                description: `Unlock full power of Unifarm Hub`,
+                name: 'Agri-Business Pro Upgrade',
                 quantity: 1
               }
             ],
-            // 3. INJECTION: We pass the live Netlify URLs directly to PayMongo!
-            success_url: successUrl,
-            cancel_url: cancelUrl,
+            // Use provided URLs, or fallback to your Netlify app safely
+            success_url: successUrl || 'https://unifarm-hub.netlify.app/?payment=success',
+            cancel_url: cancelUrl || 'https://unifarm-hub.netlify.app/',
             reference_number: `USER_${userId}_${Date.now()}` // Helpful for your accounting
           }
         }
@@ -61,7 +65,7 @@ serve(async (req) => {
       throw new Error(JSON.stringify(paymongoData.errors));
     }
 
-    // Extract the secure checkout URL from the Checkout Session response
+    // Extract the secure checkout URL from the response
     const checkoutUrl = paymongoData.data.attributes.checkout_url;
 
     return new Response(

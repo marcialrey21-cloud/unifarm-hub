@@ -213,7 +213,7 @@ export const AuthController = {
     if (btn) btn.innerText = "⏳ Generating Secure Checkout...";
 
     try {
-      const { data, error } = await supabaseClient.functions.invoke('create-paymongo-checkout', {
+      const { data, error } = await supabaseClient.functions.invoke('paymongo-checkout', {
         body: { userId: AppState.user.id, email: AppState.user.email || "user@example.com" }
       });
       if (error) throw error;
