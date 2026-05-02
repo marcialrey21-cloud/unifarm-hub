@@ -227,23 +227,20 @@ export const PremiumManager = {
         document.getElementById('btnUpgradePro').style.display = 'block';
     }
 };
-// Expose ALL controllers
-window.UnifarmApp = UnifarmApp;
-window.SettingsController = SettingsController;
-window.UIController = UIController;
-window.AuthController = AuthController;
-window.OptimizerController = OptimizerController;
-window.LoggerController = LoggerController;
-window.SimulatorController = SimulatorController;
-window.ScannerController = ScannerController;
-window.MapController = MapController;
-window.SubscriptionController = SubscriptionController;
-window.SyncController = SyncController;
-window.PremiumManager = PremiumManager;
-window.FCRController = FCRController;
-window.AppState = AppState;
-
-
+// Expose ALL controllers safely AFTER everything is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  UnifarmApp.init();
+    window.UnifarmApp = UnifarmApp;
+    window.SettingsController = SettingsController;
+    window.UIController = UIController;
+    window.AuthController = AuthController;
+    window.OptimizerController = OptimizerController;
+    window.LoggerController = LoggerController;
+    window.SimulatorController = SimulatorController;
+    window.ScannerController = ScannerController;
+    window.MapController = MapController;
+    window.SubscriptionController = SubscriptionController;
+    window.SyncController = SyncController;
+    window.PremiumManager = PremiumManager;
+    window.FCRController = FCRController;
+    window.AppState = AppState;
 });
