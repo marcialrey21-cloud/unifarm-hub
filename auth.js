@@ -103,7 +103,7 @@ export const AuthController = {
         this.toggleMode(); 
       }
     } catch (err) {
-      console.error("Auth Error:", err);
+      // console.error("Auth Error:", err);
       // This will now accurately tell you "Email not confirmed" instead of faking a registration!
       this.showMessage(err.message, "error"); 
     } finally {
