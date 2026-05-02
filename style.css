@@ -1016,3 +1016,14 @@ body.worker-mode .worker-restricted {
 .page-section {
   padding-bottom: 90px !important; /* Creates space for the bottom nav */
 }
+/* Hide the Exit button on mobile devices */
+@media (max-width: 768px) {
+    #exitBtn { /* Replace #exitBtn with the actual ID or class of your button */
+        display: none !important;
+    }
+    
+    /* You may also want to hide the Preview button on mobile if it's not needed */
+    #previewBtn { 
+        display: none !important;
+    }
+}
