@@ -48,7 +48,7 @@ export const SettingsController = {
     const queue = JSON.parse(localStorage.getItem('unifarm_offline_queue') || '[]');
     
     if (queue.length > 0) {
-      console.log(`Found ${queue.length} items waiting in the offline queue. Syncing...`);
+      // console.log(`Found ${queue.length} items waiting in the offline queue. Syncing...`);
       
       const { error } = await supabaseClient.from('feed_matrix').upsert(queue);
       

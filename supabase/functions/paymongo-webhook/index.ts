@@ -7,7 +7,7 @@ serve(async (req) => {
     const payload = await req.json();
     const event = payload.data;
 
-    console.log(`Received Webhook Event: ${event.attributes.type}`);
+    // console.log(`Received Webhook Event: ${event.attributes.type}`);
 
     // 2. We only care if a payment was successfully paid
     if (event.attributes.type === 'link.payment.paid' || event.attributes.type === 'checkout_session.payment.paid') {
@@ -40,7 +40,7 @@ serve(async (req) => {
           throw new Error("Database update failed");
         }
 
-        console.log(`Successfully upgraded user ${userId} to Premium!`);
+        // console.log(`Successfully upgraded user ${userId} to Premium!`);
       }
     }
 

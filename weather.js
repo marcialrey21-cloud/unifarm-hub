@@ -3,7 +3,7 @@ export const WeatherController = {
     apiKey: '46bb9a303b9cd3bfb09752260d50bcc8', 
     
     init: function() {
-        console.log("Initializing Weather Radar...");
+        // console.log("Initializing Weather Radar...");
         this.getLocationAndFetchWeather();
     },
 

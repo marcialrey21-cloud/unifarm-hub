@@ -117,7 +117,7 @@ export const UnifarmApp = {
                 menuAgronomy.style.display = 'none';
             }
             
-            console.log("Farm context switched to:", selectedValue);
+            //console.log("Farm context switched to:", selectedValue);
         });
     }
 
@@ -207,7 +207,7 @@ export const PremiumManager = {
     },
 
     unlockPremiumFeatures: function() {
-        console.log("🔓 Premium Access Granted!");
+        // console.log("🔓 Premium Access Granted!");
         // We will hide the upgrade banners and show the tools
         document.getElementById('btnUpgradePro').style.display = 'none';
         
@@ -222,7 +222,7 @@ export const PremiumManager = {
     },
 
     lockPremiumFeatures: function() {
-        console.log("🔒 Basic Access Only.");
+        // console.log("🔒 Basic Access Only.");
         // Make sure the upgrade button is visible
         document.getElementById('btnUpgradePro').style.display = 'block';
     }

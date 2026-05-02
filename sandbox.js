@@ -1,6 +1,6 @@
 export const SandboxController = {
     init: function() {
-        console.log("Sandbox initialized.");
+        // console.log("Sandbox initialized.");
         this.bindEvents();
         this.calculate(); // Run once on load
     },

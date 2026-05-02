@@ -3,7 +3,7 @@ import { AppState } from './state.js';
 
 export const SyncController = {
   init: function() {
-    console.log("Cloud Sync Engine initialized.");
+    // console.log("Cloud Sync Engine initialized.");
     
     // 1. Keep your existing manual sync button
     const syncBtn = document.getElementById('btnSyncData');
@@ -17,7 +17,7 @@ export const SyncController = {
     // This listens to the browser/device network status. 
     // The moment the internet connects, it fires the sync automatically!
     window.addEventListener('online', () => {
-      console.log("Network connection restored! Attempting background sync...");
+      // console.log("Network connection restored! Attempting background sync...");
       // Check if there is actually data to sync before running
       const rawData = localStorage.getItem('unifarm_field_log');
       const localLog = JSON.parse(rawData) || [];
@@ -56,7 +56,7 @@ export const SyncController = {
         syncText.innerText = `Syncing ${localLog.length} records...`;
     }
 
-    console.log(`Preparing to sync ${localLog.length} records to Supabase...`);
+    // console.log(`Preparing to sync ${localLog.length} records to Supabase...`);
 
     // 4. Format the local data so Supabase accepts it perfectly
     const payload = localLog.map(record => {
@@ -100,7 +100,7 @@ export const SyncController = {
         } else if (!isAutoSync) {
             alert(`Success! ${localLog.length} field scans have been safely backed up to your cloud account.`);
         } else {
-            console.log(`Auto-Sync Success! ${localLog.length} records backed up silently.`);
+            // console.log(`Auto-Sync Success! ${localLog.length} records backed up silently.`);
         }
 
     } catch (error) {

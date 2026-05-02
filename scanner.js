@@ -46,7 +46,7 @@ export const ScannerController = {
       document.getElementById('historyModal').style.setProperty('display', 'none', 'important');
     });
     
-    console.log("Scanner Initialized: Wired to Azure Cloud. Default Mode: Plant");
+    // console.log("Scanner Initialized: Wired to Azure Cloud. Default Mode: Plant");
   },
 
   // 🟢 UPDATED: The function that handles switching modes, colors, and button text
@@ -75,7 +75,7 @@ export const ScannerController = {
         // 🟢 NEW: Change the capture button text for Pest mode
         if (btnScan) btnScan.innerText = "Scan Pest";
     }
-    console.log(`Scanner mode switched to: ${mode}`);
+    // console.log(`Scanner mode switched to: ${mode}`);
   },
 
   startCamera: async function() {
@@ -361,7 +361,7 @@ export const ScannerController = {
         const confirmDeduction = confirm(`The AI recommends applying: ${itemToDeduct}.\n\nWould you like to deduct 1 unit from your Inventory?`);
 
         if (confirmDeduction) {
-            console.log(`Attempting to automatically deduct: ${itemToDeduct}`);
+            // console.log(`Attempting to automatically deduct: ${itemToDeduct}`);
             
             // 4. Send the command to your InventoryController!
             // (Assuming your deductStock method takes the item name and the quantity)
@@ -374,7 +374,7 @@ export const ScannerController = {
                 return; // Stop the function here if the deduction failed
             }
         } else {
-            console.log("User canceled the inventory deduction.");
+            // console.log("User canceled the inventory deduction.");
         }
 
     } else {

@@ -112,7 +112,7 @@ export const AuthController = {
   },
 
   handleLoginSuccess: function(user) {
-    console.log("Logged in successfully!");
+    // console.log("Logged in successfully!");
     AppState.user.id = user.id;
     
     const authScreen = document.getElementById('authScreen');

@@ -1,6 +1,6 @@
 export const SubscriptionController = {
     init: function() {
-        console.log("Subscription Engine initialized.");
+        // console.log("Subscription Engine initialized.");
         this.bindEvents();
         
         // 🟢 SURGICAL ADDITION 1: Catch the user when they return from PayMongo
@@ -42,7 +42,7 @@ export const SubscriptionController = {
     },
 
     showSubscriptionPage: function() {
-        console.log("Navigating to Subscription Paywall...");
+        // console.log("Navigating to Subscription Paywall...");
 
         document.querySelectorAll('.page-section').forEach(section => {
             section.style.display = 'none';
@@ -62,7 +62,7 @@ export const SubscriptionController = {
     },
 
     initiateCheckout: async function(planId, amount) {
-        console.log(`Initiating secure checkout for ${planId} at ₱${amount}`);
+        // console.log(`Initiating secure checkout for ${planId} at ₱${amount}`);
         
         const upgradeBtn = document.getElementById('btnUpgradePro');
         upgradeBtn.innerText = "Connecting to Secure Checkout...";
@@ -94,7 +94,7 @@ export const SubscriptionController = {
             }
 
             if (data.checkoutUrl) {
-                console.log("Success! Redirecting to PayMongo...");
+                // console.log("Success! Redirecting to PayMongo...");
                 window.location.href = data.checkoutUrl; 
             } else {
                 throw new Error("No checkout URL returned.");

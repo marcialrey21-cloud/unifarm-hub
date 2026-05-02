@@ -1,6 +1,6 @@
 export const FCRController = {
     init: function() {
-        console.log("FCR & Profit Tracker initialized.");
+        // console.log("FCR & Profit Tracker initialized.");
         this.bindEvents();
     },
 

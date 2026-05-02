@@ -298,15 +298,15 @@ export const OptimizerController = {
   
   // Changed from window.syncOptimizerLimits
   syncOptimizerLimits: function() {
-    console.log("--- 🚀 SYNC STARTED ---");
+    // console.log("--- 🚀 SYNC STARTED ---");
     const presetSelector = document.getElementById('optAnimalCategory');
     if (!presetSelector) { console.log("❌ ERROR: Dropdown menu not found!"); return; }
   
     const currentTarget = presetSelector.options[presetSelector.selectedIndex].text.toLowerCase();
-    console.log("1. Selected Animal is:", currentTarget);
+    // console.log("1. Selected Animal is:", currentTarget);
   
     const maxInputs = document.querySelectorAll('.opt-max');
-    console.log("2. Found this many Max boxes:", maxInputs.length);
+    // console.log("2. Found this many Max boxes:", maxInputs.length);
   
     maxInputs.forEach((maxInput, index) => {
       const row = maxInput.closest('.opt-ingredient-row') || maxInput.parentElement.parentElement; 
@@ -318,7 +318,7 @@ export const OptimizerController = {
       if (!nameInput || !nameInput.value) { console.log(`Row ${index}: ❌ Name input is blank.`); return; }
   
       const ingName = nameInput.value.toLowerCase().trim();
-      console.log(`Row ${index}: Trying to find "${ingName}" in database...`);
+      // console.log(`Row ${index}: Trying to find "${ingName}" in database...`);
   
       const item = AppState.optimizer.matrix[ingName];
       if (!item) { console.log(`Row ${index}: ❌ "${ingName}" NOT FOUND in the cloud dictionary!`); return; }
@@ -327,7 +327,7 @@ export const OptimizerController = {
       if (typeof limits === 'string') {
         try { limits = JSON.parse(limits); } catch(e) { limits = {}; }
       }
-      console.log(`Row ${index}: Database Limits =`, limits);
+      // console.log(`Row ${index}: Database Limits =`, limits);
   
       let finalMax = limits['default'] !== undefined ? limits['default'] : (item.max_percent || 100);
   
@@ -341,19 +341,19 @@ export const OptimizerController = {
         finalMax = limits['swine_finisher'];
       }
   
-      console.log(`Row ${index}: Calculating... Old Max = ${maxInput.value}, New Max = ${finalMax}`);
+      // console.log(`Row ${index}: Calculating... Old Max = ${maxInput.value}, New Max = ${finalMax}`);
   
       if (parseFloat(maxInput.value) !== parseFloat(finalMax)) {
           maxInput.value = finalMax;
           maxInput.style.transition = "background-color 0.3s";
           maxInput.style.backgroundColor = "#d4edda"; 
           setTimeout(() => maxInput.style.backgroundColor = "", 600);
-          console.log(`Row ${index}: ✅ SUCCESS! Changed to ${finalMax}`);
+          // console.log(`Row ${index}: ✅ SUCCESS! Changed to ${finalMax}`);
       } else {
-          console.log(`Row ${index}: ⏸️ No change needed.`);
+          // console.log(`Row ${index}: ⏸️ No change needed.`);
       }
     });
-    console.log("--- 🏁 SYNC FINISHED ---");
+    // console.log("--- 🏁 SYNC FINISHED ---");
   }, // <-- ADDED COMMA HERE
   
   // Changed from window.downloadMixSheetPDF
@@ -486,13 +486,13 @@ export const OptimizerController = {
       let updatesToMake = [];
       let deletesToMake = [];
   
-      console.log("--- 📦 STARTING WAREHOUSE CHECK ---");
+      // console.log("--- 📦 STARTING WAREHOUSE CHECK ---");
   
       for (const item of recipe) {
         const requiredQty = item.qty;
         
         const firstWord = item.name.split(' ')[0].trim();
-        console.log(`Searching inventory for: ${firstWord} (Need: ${requiredQty.toFixed(2)} kg)`);
+        // console.log(`Searching inventory for: ${firstWord} (Need: ${requiredQty.toFixed(2)} kg)`);
   
         const { data: invRows, error } = await supabaseClient
           .from('inventory')

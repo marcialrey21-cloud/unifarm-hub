@@ -29,7 +29,7 @@ export const MapController = {
                 return;
             }
 
-            console.log("Initializing Map Engine...");
+            // console.log("Initializing Map Engine...");
             
             this.map = L.map('outbreakMap').setView([7.7944, 126.4531], 13);
 
@@ -115,7 +115,7 @@ export const MapController = {
             return;
         }
 
-        console.log("Fetching agricultural records from Supabase Cloud...");
+        // console.log("Fetching agricultural records from Supabase Cloud...");
 
         const { data: log, error } = await supabaseClient
             .from('field_logs')
@@ -127,7 +127,7 @@ export const MapController = {
             return;
         }
 
-        console.log(`Successfully downloaded ${log.length} cloud records.`);
+        // console.log(`Successfully downloaded ${log.length} cloud records.`);
         
         // Save to local memory for instant slider filtering
         this.allScans = log; 

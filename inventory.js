@@ -167,7 +167,7 @@ export const InventoryController = {
       // 🟢 THE FIX: Strip away any periods, commas, and extra spaces the AI might have added
       const cleanKeyword = searchKeyword.replace(/[.,]/g, '').trim();
       
-      console.log(`Smart Search looking for: "${cleanKeyword}"`);
+      // console.log(`Smart Search looking for: "${cleanKeyword}"`);
 
       // 1. Search the cloud database for an item matching the cleaned keyword
       const { data, error } = await supabaseClient
