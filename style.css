@@ -1026,3 +1026,89 @@ body.worker-mode .worker-restricted {
         display: none !important;
     }
 }
+/* --- PAYMENT MODAL STYLES --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 9999; /* Ensures it is on top of everything */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.payment-card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 16px;
+    padding: 30px 20px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: none; border: none;
+    font-size: 28px; color: #64748b;
+    cursor: pointer;
+}
+
+.payment-header h2 {
+    color: #1e293b;
+    margin-bottom: 5px;
+}
+
+.payment-header p {
+    color: #f59e0b; /* Warning orange to show they are out of scans */
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.payment-package {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.package-details {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.package-title { font-weight: bold; color: #334155; }
+.package-amount { color: #2e7d32; font-weight: bold; font-size: 1.1rem; }
+.package-price { font-size: 1.5rem; font-weight: bold; color: #1e293b; }
+
+.payment-benefits {
+    text-align: left;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 25px;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.payment-btn {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 15px;
+    background-color: #005ce6; /* A trustworthy "Finance" blue */
+}
+
+.secure-text {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 15px;
+}

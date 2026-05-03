@@ -7,13 +7,15 @@ serve(async (req) => {
     const payload = await req.json();
     const event = payload.data;
 
-    // console.log(`Received Webhook Event: ${event.attributes.type}`);
-
     // 2. We only care if a payment was successfully paid
     if (event.attributes.type === 'link.payment.paid' || event.attributes.type === 'checkout_session.payment.paid') {
       
       const paymentData = event.attributes.data.attributes;
-      const remarks = paymentData.remarks; // This looks like "User ID: 12345..."
+      const remarks = paymentData.remarks; 
+      
+      // Extract amount and description to determine WHICH product was bought
+      const amountPaid = paymentData.amount; 
+      const description = paymentData.description || "";
 
       // 3. Extract the exact User ID from the remarks string
       if (remarks && remarks.includes("User ID: ")) {
@@ -21,26 +23,64 @@ serve(async (req) => {
         console.log(`Payment confirmed for User ID: ${userId}`);
 
         // 4. Connect to your Supabase Database using "God Mode" keys
-        // (These keys are automatically injected by Supabase into your Edge Functions securely)
         const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
         const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
         
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-        // 5. Upgrade the User in the database!
-        // Note: This assumes you have a table called 'user_profiles' with a 'plan' column.
-        // We can adjust this exact table/column name later if yours is different!
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ plan: 'Agri-Business Pro' })
-          .eq('id', userId);
+        // ========================================================
+        // ROUTE A: ₱50.00 SCAN TOP-UP (Amount is in centavos: 5000)
+        // ========================================================
+        if (amountPaid === 5000 || description.includes('10 Premium AI Scans')) {
+          console.log(`Processing 10 Premium Scans for user ${userId}...`);
 
-        if (error) {
-          console.error("Failed to upgrade user in database:", error.message);
-          throw new Error("Database update failed");
+          // Step A: Fetch their current scan balance from user_profiles
+          const { data: profileData, error: fetchError } = await supabase
+            .from('user_profiles') 
+            .select('paid_scans') 
+            .eq('id', userId)
+            .single();
+
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error("Failed to fetch profile:", fetchError.message);
+            throw new Error("Profile fetch failed");
+          }
+
+          // If they have scans, use that number. If not, start at 0.
+          const currentScans = profileData?.paid_scans || 0;
+
+          // Step B: Add 10 scans and save it back to the database
+          const { error: updateError } = await supabase
+            .from('user_profiles')
+            .update({ paid_scans: currentScans + 10 })
+            .eq('id', userId);
+
+          if (updateError) {
+            console.error("Failed to top-up scans in database:", updateError.message);
+            throw new Error("Scan top-up failed");
+          }
+          
+          console.log(`Successfully added 10 scans to user ${userId}!`);
+
+        } 
+        // ========================================================
+        // ROUTE B: AGRI-BUSINESS PRO UPGRADE (Your Original Code)
+        // ========================================================
+        else {
+          console.log(`Processing Agri-Business Pro Upgrade for user ${userId}...`);
+          
+          const { error } = await supabase
+            .from('user_profiles')
+            .update({ plan: 'Agri-Business Pro' })
+            .eq('id', userId);
+
+          if (error) {
+            console.error("Failed to upgrade user in database:", error.message);
+            throw new Error("Database update failed");
+          }
+          
+          console.log(`Successfully upgraded user ${userId} to Premium!`);
         }
-
-        // console.log(`Successfully upgraded user ${userId} to Premium!`);
       }
     }
 

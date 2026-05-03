@@ -13,6 +13,7 @@ export const ScannerController = {
   edgeFunctionUrl: "https://bniwmsoxyuchuoaqjjxo.supabase.co/functions/v1/analyze-crop",
 
   init: async function() {
+    // 1. INTRODUCE ALL BUTTONS FIRST
     const btnStart = document.getElementById('btnStartCamera');
     const btnScan = document.getElementById('btnScanLeaf');
     const btnRetake = document.getElementById('btnRetake');
@@ -21,12 +22,76 @@ export const ScannerController = {
     const closeHistory = document.getElementById('closeHistoryBtn');
     const clearHistory = document.getElementById('clearHistoryBtn');
     const btnSpeak = document.getElementById('btnSpeak');
-    
-    // 🟢 NEW: Grab our new toggle buttons
     const btnPlant = document.getElementById('btnModePlant');
     const btnPest = document.getElementById('btnModePest');
+    
+    // Introduce Payment buttons
+    const closePayBtn = document.getElementById('closePaymentBtn');
+    const mockPayBtn = document.getElementById('mockPayBtn');
+    const paymentModal = document.getElementById('paymentModal');
 
-    // 🟢 NEW: Listen for clicks on the toggle buttons
+    // 2. PAYMENT MODAL LISTENERS
+    if (closePayBtn) {
+        closePayBtn.addEventListener('click', () => {
+            paymentModal.style.display = 'none';
+        });
+    }
+
+    if (mockPayBtn) {
+        mockPayBtn.addEventListener('click', async () => {
+            // Show processing state
+            document.getElementById('payBtnText').style.display = 'none';
+            document.getElementById('payBtnLoader').style.display = 'inline';
+            mockPayBtn.disabled = true;
+            mockPayBtn.style.backgroundColor = '#94a3b8';
+
+            try {
+                // 1. Get the currently logged-in user's ID securely from Supabase
+                const { data: authData } = await supabase.auth.getUser();
+                
+                // Safety check: Ensure the app found a logged-in user
+                if (!authData || !authData.user) {
+                    throw new Error("You must be logged in to purchase scans.");
+                }
+                
+                const currentUserId = authData.user.id;
+
+                // Request a secure payment link from Supabase
+                const paymentFunctionUrl = "https://bniwmsoxyuchuoaqjjxo.supabase.co/functions/v1/create-scan-payment";
+                
+                const response = await fetch(paymentFunctionUrl, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaXdtc294eXVjaHVvYXFqanhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTI4NjUsImV4cCI6MjA5MDEyODg2NX0.51_ZCjfKARxqw8pDOIoTQ4e_nxXWG8W-0XSgVVnktKc'
+                    },
+                    // 2. Send the user ID inside the body of the request!
+                    body: JSON.stringify({ userId: currentUserId }) 
+                });
+
+                const data = await response.json();
+
+                if (data.checkoutUrl) {
+                    // Success! Redirect the user directly to the PayMongo checkout page
+                    window.location.href = data.checkoutUrl;
+                } else {
+                    throw new Error("Could not generate the payment link.");
+                }
+
+            } catch (error) {
+                console.error("Payment Error:", error);
+                alert("We couldn't connect to the payment processor or verify your account. Please check your internet connection and ensure you are logged in.");
+                
+                // Reset the button if it fails so they can try again
+                document.getElementById('payBtnText').style.display = 'inline';
+                document.getElementById('payBtnLoader').style.display = 'none';
+                mockPayBtn.disabled = false;
+                mockPayBtn.style.backgroundColor = '#005ce6';
+            }
+        });
+    }
+
+    // 3. SCANNER & CAMERA LISTENERS
     if (btnPlant) btnPlant.addEventListener('click', () => this.switchMode('plant'));
     if (btnPest) btnPest.addEventListener('click', () => this.switchMode('pest'));
 
@@ -37,6 +102,7 @@ export const ScannerController = {
             alert("Please scan an item first!");
         }
     });
+
     if(btnStart) btnStart.addEventListener('click', () => this.startCamera());
     if(btnScan) btnScan.addEventListener('click', () => this.captureAndScan());
     if(btnRetake) btnRetake.addEventListener('click', () => this.resetScanner());
@@ -46,36 +112,76 @@ export const ScannerController = {
       document.getElementById('historyModal').style.setProperty('display', 'none', 'important');
     });
     
-    // console.log("Scanner Initialized: Wired to Azure Cloud. Default Mode: Plant");
+  }, // <-- The critical closing stitch is perfectly in place here!
+
+  // ==========================================
+  // 🟢 NEW: FREEMIUM WALLET LOGIC
+  // ==========================================
+  checkScanLimit: function() {
+    // Look in the phone's local storage for their wallet, or create a new one
+    let scanUsage = JSON.parse(localStorage.getItem('uniFarmScannerWallet')) || { 
+        freeScansUsed: 0, 
+        paidScansRemaining: 0 
+    };
+
+    // 1. First Priority: Check if they have purchased paid scans available
+    if (scanUsage.paidScansRemaining > 0) {
+        scanUsage.paidScansRemaining--;
+        localStorage.setItem('uniFarmScannerWallet', JSON.stringify(scanUsage));
+        console.log("Paid scan used. Remaining balance:", scanUsage.paidScansRemaining);
+        return true; // Tells the scanner to GO
+    }
+
+    // 2. Second Priority: Check if they still have their 3 free trial scans
+    if (scanUsage.freeScansUsed < 3) {
+        scanUsage.freeScansUsed++;
+        localStorage.setItem('uniFarmScannerWallet', JSON.stringify(scanUsage));
+        console.log("Free scan used. Total free scans used:", scanUsage.freeScansUsed, "/ 3");
+        return true; // Tells the scanner to GO
+    }
+
+    // 3. The Paywall: If out of free scans AND out of paid scans
+    const paymentModal = document.getElementById('paymentModal');
+    if (paymentModal) {
+        paymentModal.style.display = 'flex';
+    }
+    // Optional: Redirect them to your payment page when you build it
+    // window.location.href = "checkout.html"; 
+    
+    return false; // Tells the scanner to STOP before Azure gets triggered
   },
 
-  // 🟢 UPDATED: The function that handles switching modes, colors, and button text
+  // Helper method for when you build the payment page
+  addPaidScansToWallet: function(amount = 10) {
+    let scanUsage = JSON.parse(localStorage.getItem('uniFarmScannerWallet')) || { freeScansUsed: 3, paidScansRemaining: 0 };
+    scanUsage.paidScansRemaining += amount;
+    localStorage.setItem('uniFarmScannerWallet', JSON.stringify(scanUsage));
+    alert("Success! " + amount + " scans have been added to your Uni-Farm Hub account.");
+  },
+  // ==========================================
+
+
   switchMode: function(mode) {
     this.currentMode = mode;
     const btnPlant = document.getElementById('btnModePlant');
     const btnPest = document.getElementById('btnModePest');
-    const btnScan = document.getElementById('btnScanLeaf'); // Grab the blue capture button
+    const btnScan = document.getElementById('btnScanLeaf'); 
     
     if (mode === 'plant') {
-        // Style the Plant button as active
         btnPlant.style.background = '#4CAF50';
         btnPlant.style.color = 'white';
         btnPest.style.background = 'white';
         btnPest.style.color = '#FF9800';
         
-        // 🟢 NEW: Change the capture button text back to Plant mode
         if (btnScan) btnScan.innerText = "Scan Leaf";
     } else {
-        // Style the Pest button as active
         btnPest.style.background = '#FF9800';
         btnPest.style.color = 'white';
         btnPlant.style.background = 'white';
         btnPlant.style.color = '#4CAF50';
         
-        // 🟢 NEW: Change the capture button text for Pest mode
         if (btnScan) btnScan.innerText = "Scan Pest";
     }
-    // console.log(`Scanner mode switched to: ${mode}`);
   },
 
   startCamera: async function() {
@@ -110,6 +216,12 @@ export const ScannerController = {
   },
 
   captureAndScan: function() {
+    // 🛡️ NEW: RUN THE FREEMIUM CHECK FIRST!
+    // If this returns false, the function stops immediately and Azure is saved.
+    if (!this.checkScanLimit()) {
+        return; 
+    }
+
     const video = document.getElementById('cameraFeed');
     const canvas = document.getElementById('photoCanvas');
     const scannerBox = document.getElementById('scannerBox');
@@ -138,7 +250,6 @@ export const ScannerController = {
     document.getElementById('aiDiagnosisTitle').innerText = "Transmitting to Azure AI...";
     document.getElementById('aiDiagnosisTitle').style.color = "#1e293b";
     
-    // 🟢 NEW: Change the loading text slightly based on mode
     const loadingText = this.currentMode === 'plant' 
       ? "Analyzing environmental context and visual symptoms..." 
       : "Identifying insect species and analyzing pest threats...";
@@ -157,18 +268,15 @@ export const ScannerController = {
     const resultCard = document.getElementById('aiResultCard');
     const canvas = document.getElementById('photoCanvas');
 
-    // 🟢 ENTERPRISE UPGRADE: The Offline Guard
+    // The Offline Guard
     if (!navigator.onLine) {
-        // Stop the scanning animation
         if (scannerBox) scannerBox.classList.remove('scanning-active');
         if (btnRetake) btnRetake.disabled = false;
         
-        // Show a polite offline message
         document.getElementById('aiDiagnosisTitle').innerText = "📡 No Connection";
-        document.getElementById('aiDiagnosisTitle').style.color = "#f59e0b"; // Warning Orange
+        document.getElementById('aiDiagnosisTitle').style.color = "#f59e0b";
         document.getElementById('aiRecommendation').innerText = "AI scanning requires an internet connection to reach the Azure Cloud. Please connect to Wi-Fi or cellular data to analyze this image.";
         
-        // Show the card and stop the function
         if (resultCard) resultCard.classList.add('active');
         return; 
     }
@@ -204,7 +312,7 @@ export const ScannerController = {
         // 2. CONVERT IMAGE TO BASE64
         const base64Image = canvas.toDataURL('image/jpeg', 1.0).split(',')[1];
 
-        // 3. PING SUPABASE (With Coords & Mode Ready!)
+        // 3. PING SUPABASE
         const response = await fetch(this.edgeFunctionUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -212,7 +320,7 @@ export const ScannerController = {
                 imageBase64: base64Image,
                 lat: lat,
                 lng: lng,
-                mode: this.currentMode // 🟢 NEW: Tell the backend if it's a plant or pest!
+                mode: this.currentMode
             })
         });
 
@@ -226,15 +334,14 @@ export const ScannerController = {
             btnRetake.disabled = false;
             
             document.getElementById('aiDiagnosisTitle').innerText = "Uncertain Identification";
-            document.getElementById('aiDiagnosisTitle').style.color = "#f59e0b"; // Warning Orange
+            document.getElementById('aiDiagnosisTitle').style.color = "#f59e0b"; 
             document.getElementById('aiRecommendation').innerText = "The image detail is insufficient for a professional diagnosis. To avoid a wrong treatment, please move closer, ensure the subject is clear, and rescan.";
             
-            // Hide identity card if it was showing
             const identityCard = document.getElementById('plantIdentityCard');
             if (identityCard) identityCard.style.display = 'none';
 
             resultCard.classList.add('active');
-            return; // 🛑 EXIT FUNCTION
+            return; 
         }
 
         // 4. UPDATE UI
@@ -243,7 +350,6 @@ export const ScannerController = {
         const speakBtn = document.getElementById('btnSpeak');
         const weatherText = document.getElementById('weatherText');
 
-        // Handle Weather UI
         if (aiResult.weatherWarning && weatherBox) {
             weatherBox.style.display = 'block';
             if (weatherText) weatherText.innerText = aiResult.weatherWarning;
@@ -251,7 +357,6 @@ export const ScannerController = {
             weatherBox.style.display = 'none';    
         }
 
-        // Handle Plant/Pest Identity UI (We reuse the plant UI fields for insects perfectly)
         if (aiResult.plantName && identityCard) {
             identityCard.style.display = 'block';
             if (speakBtn) speakBtn.style.display = 'flex';
@@ -267,8 +372,6 @@ export const ScannerController = {
             if (loc) loc.innerText = aiResult.plantName.local || 'N/A';
         }
 
-        // Handle Diagnosis UI
-        // Note: For pests, 'healthy' might not apply, but the color logic still works
         const isHealthy = aiResult.diagnosisTitle.toLowerCase().includes('healthy');
         const uiColor = isHealthy ? "#2e7d32" : "#d32f2f";
 
@@ -311,7 +414,7 @@ export const ScannerController = {
             color: uiColor,
             lat: lat,
             lng: lng,
-            mode: this.currentMode // 🟢 NEW: Save the mode in the history log
+            mode: this.currentMode 
         };
         this.saveToDatabase(scanRecord);
 
@@ -349,41 +452,27 @@ export const ScannerController = {
   },
   
   applyTreatment: async function() {
-    // 1. Turn off the camera to save battery
     this.stopCamera(); 
 
-    // 2. Check if we have a recent scan result AND if it recommended an inventory item
     if (this.lastResult && this.lastResult.inventoryNeeded && this.lastResult.inventoryNeeded.toLowerCase() !== 'none') {
         
         const itemToDeduct = this.lastResult.inventoryNeeded;
-
-        // 3. Optional but recommended: Ask the user to confirm before touching their database
         const confirmDeduction = confirm(`The AI recommends applying: ${itemToDeduct}.\n\nWould you like to deduct 1 unit from your Inventory?`);
 
         if (confirmDeduction) {
-            // console.log(`Attempting to automatically deduct: ${itemToDeduct}`);
-            
-            // 4. Send the command to your InventoryController!
-            // (Assuming your deductStock method takes the item name and the quantity)
             const success = await InventoryController.deductStock(itemToDeduct, 1);
             
             if (success) {
                 alert(`Success! 1 unit of ${itemToDeduct} has been deducted from your inventory.`);
             } else {
                 alert(`Could not deduct ${itemToDeduct}. Please check if you have it in stock in your Inventory tab.`);
-                return; // Stop the function here if the deduction failed
+                return; 
             }
-        } else {
-            // console.log("User canceled the inventory deduction.");
-        }
-
+        } 
     } else {
-        // Fallback if the AI didn't specify a chemical, or said "None"
         alert("No specific inventory chemical was recommended for this scan.");
     }
 
-    // 5. Navigate the user to the Inventory view so they can see their updated stock!
-    // (Ensure 'nav-inventory' matches the ID of your bottom navigation button)
     const inventoryNavBtn = document.getElementById('nav-inventory');
     if (inventoryNavBtn) {
         inventoryNavBtn.click();
@@ -402,7 +491,6 @@ export const ScannerController = {
     } else {
       log.forEach(record => {
         const locationText = record.lat ? `📍 Lat: ${record.lat}, Lng: ${record.lng}` : `📍 Location Unavailable (Saved Offline)`;
-        // 🟢 NEW: Add a tiny icon to history depending on the mode
         const icon = record.mode === 'pest' ? '🐛' : '🌱';
         
         listHTML += `
@@ -470,7 +558,6 @@ export const ScannerController = {
     const disease = data.diagnosisTitle;
     const treatment = data.treatment;
 
-    // 🟢 NEW: Adjusted speech to make sense for both plants and pests
     const textToSay = `Identification: ${entityName}, locally known as ${local}. Diagnosis: ${disease}. Recommendation: ${treatment}`;
 
     const utterance = new SpeechSynthesisUtterance(textToSay);
@@ -489,7 +576,6 @@ export const ScannerController = {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // 1. Branding & Header
     doc.setFillColor(22, 101, 52); 
     doc.rect(0, 0, 210, 40, 'F');
     
@@ -499,17 +585,14 @@ export const ScannerController = {
     doc.setFontSize(10);
     doc.text("Enterprise Agronomy & Field Report", 20, 30);
 
-    // 2. Metadata
     doc.setTextColor(100);
     doc.setFontSize(9);
     const dateStr = new Date().toLocaleString();
     doc.text(`Report ID: ${Date.now()}`, 140, 50);
     doc.text(`Date: ${dateStr}`, 140, 55);
 
-    // 3. Identification
     doc.setTextColor(22, 101, 52);
     doc.setFontSize(16);
-    // 🟢 NEW: Changed "PLANT IDENTIFICATION" to just "IDENTIFICATION" to fit both modes
     doc.text("IDENTIFICATION", 20, 65);
     
     doc.setTextColor(0);
@@ -518,7 +601,6 @@ export const ScannerController = {
     doc.text(`Local Name: ${data.plantName.local}`, 25, 82);
     doc.text(`Scientific Name: ${data.plantName.scientific}`, 25, 89);
 
-    // 4. Diagnosis
     doc.setTextColor(22, 101, 52);
     doc.setFontSize(16);
     doc.text("DIAGNOSIS & HEALTH", 20, 105);
@@ -529,7 +611,6 @@ export const ScannerController = {
     doc.setFontSize(10);
     doc.text(`Confidence Score: ${data.confidence}%`, 25, 122);
 
-    // 5. Treatment Plan
     doc.setTextColor(22, 101, 52);
     doc.setFontSize(16);
     doc.text("TREATMENT PLAN", 20, 140);
@@ -539,7 +620,6 @@ export const ScannerController = {
     const splitTreatment = doc.splitTextToSize(data.treatment, 160);
     doc.text(splitTreatment, 25, 150);
 
-    // 6. Weather Context
     if (data.weatherWarning) {
         doc.setFillColor(255, 247, 237); 
         doc.rect(20, 200, 170, 20, 'F');
@@ -549,7 +629,6 @@ export const ScannerController = {
         doc.text(splitWeather, 25, 208);
     }
 
-    // 7. Footer
     doc.setTextColor(150);
     doc.setFontSize(8);
     doc.text("This report was generated by Unifarm Hub AI. Diagnosis is based on visual analysis.", 20, 285);

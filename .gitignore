@@ -1,3 +1,10 @@
 .DS_Store
 node_modules/
 Thumbs.db
+
+# API Keys and Environment Variables
+.env
+.env.local
+
+# Supabase Local Configuration
+.supabase/

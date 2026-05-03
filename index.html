@@ -1015,7 +1015,7 @@
       </button>
   </nav>
 
-  <div id="limitsModal" class="modal-overlay hidden-section">
+  <div id="limitsModal" class="modal-overlay hidden-section" style="display: none;">
     <div class="modal-content">
       <h3 id="modalIngredientName">Ingredient Limits</h3>
       <p class="text-muted">Set specific maximum inclusion percentages based on the target animal and stage.</p>
@@ -1058,7 +1058,7 @@
     </div>
   </div>
 
-  <div id="assumptionsModal" class="modal-overlay hidden-section">
+  <div id="assumptionsModal" class="modal-overlay hidden-section" style="display: none;">
   <div class="modal-content">
     <h3>⚙️ Market Assumptions</h3>
     <p class="help-text-small">Update current market prices and fixed costs to ensure accurate ROI predictions for your specific farm.</p>
@@ -1150,7 +1150,41 @@
       <button id="clearHistoryBtn" class="btn btn-secondary btn-fill" style="margin-top: 15px; background-color: #fee2e2; color: #d32f2f; border: 1px solid #f87171; padding: 10px; border-radius: 6px; cursor: pointer;">🗑️ Clear Log</button>
     
     </div>
-  </div>    
+  </div>
+  
+  <!-- ========================================== -->
+  <!-- PAYMENT TOP-UP MODAL -->
+  <!-- ========================================== -->
+  <div id="paymentModal" class="modal-overlay" style="display: none;">
+      <div class="payment-card">
+          <button id="closePaymentBtn" class="close-modal-btn">&times;</button>
+            
+          <div class="payment-header">
+              <h2>Unlock More Scans</h2>
+              <p>You've used all your free trial scans.</p>
+          </div>
+            
+          <div class="payment-package">
+              <div class="package-details">
+                  <span class="package-title">Premium AI Scans</span>
+                  <span class="package-amount">10 Scans</span>
+              </div>
+              <div class="package-price">₱50.00</div>
+          </div>
+            
+          <ul class="payment-benefits">
+              <li>✔️ Instant access to Azure AI Vision</li>
+              <li>✔️ High-accuracy pest & disease detection</li>
+              <li>✔️ Detailed treatment prescriptions</li>
+          </ul>
+
+          <button id="mockPayBtn" class="primary-btn payment-btn">
+              <span id="payBtnText">Pay ₱50.00 with GCash / Card</span>
+              <span id="payBtnLoader" style="display: none;">Processing...</span>
+          </button>
+          <p class="secure-text">🔒 Secure payment simulation</p>
+      </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/javascript-lp-solver/prod/solver.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
