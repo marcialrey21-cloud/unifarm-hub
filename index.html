@@ -199,6 +199,148 @@
         </div>
       </div> <!-- FIXED: Closed dairyModule -->
     </div> <!-- FIXED: Closed dashboardView -->
+
+    <!-- ========================================== -->
+    <!-- SWINE MODULE -->
+    <!-- ========================================== -->
+    <div id="swineModule" class="species-module hidden-section">
+        <div class="card predictor-card">
+        <!-- Ensure you have a swine-banner.jpg file in your folder! -->
+            <img src="swine-banner.jpg" class="module-banner" alt="Swine Banner">
+            <h2>Swine Management</h2>
+            <h3 class="prediction-title">Swine Growth Predictor</h3>
+            <p class="help-text-small">Estimate harvest dates and total feed requirements for fatteners.</p>
+                
+            <!-- ROW 1: Weights -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label class="dark-label" for="swineCurrentWeight">Current Weight (kg)</label>
+                    <input type="number" id="swineCurrentWeight" placeholder="e.g., 25" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label class="dark-label" for="swineTargetWeight">Target Weight (kg)</label>
+                    <input type="number" id="swineTargetWeight" placeholder="e.g., 90" step="0.1">
+                </div>
+            </div>
+            <!-- ROW 2: Performance Metrics (Pre-filled with Sensible Defaults) -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label class="dark-label" for="swineADG">Base ADG (kg/day)</label>
+                    <!-- Added value="0.75" so the farmer doesn't have to guess -->
+                    <input type="number" id="swineADG" value="0.75" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label class="dark-label" for="swineFCR">Target FCR</label>
+                    <!-- Added value="2.5" as a standard baseline -->
+                    <input type="number" id="swineFCR" value="2.5" step="0.01">
+                </div>
+            </div>
+
+            <button id="calcSwineBtn" class="primary-btn mt-15">Predict Harvest</button>
+
+            <!-- THE RESULTS BOX (Hidden until calculated) -->
+            <div id="swineResultBox" class="result-box hidden-result mt-15" style="display: none;">
+                <h3 class="prediction-title">Harvest Projection:</h3>
+                <p>Days to Target: <strong id="swineResDays" class="large-text">0 Days</strong></p>
+                <hr class="result-divider">
+                <p>Total Feed Needed: <strong id="swineResFeed">0 kg</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- BEEF CATTLE MODULE -->
+    <!-- ========================================== -->
+    <div id="beefModule" class="species-module hidden-section">
+        <div class="card predictor-card">
+            <!-- Ensure you have a beef-banner.jpg file in your folder! -->
+            <img src="beef-banner.jpg" class="module-banner" alt="Beef Cattle Banner">
+            <h2>Beef Cattle Management</h2>
+            <h3 class="prediction-title">Beef Growth Predictor</h3>
+            <p class="help-text-small">Estimate harvest dates and total feed requirements for fattening cattle.</p>
+                
+            <!-- ROW 1: Weights -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label class="dark-label" for="beefCurrentWeight">Current Weight (kg)</label>
+                    <input type="number" id="beefCurrentWeight" placeholder="e.g., 200" step="1">
+                </div>
+                <div class="input-group">
+                    <label class="dark-label" for="beefTargetWeight">Target Weight (kg)</label>
+                    <input type="number" id="beefTargetWeight" placeholder="e.g., 450" step="1">
+                </div>
+            </div>
+
+            <!-- ROW 2: Performance Metrics (Pre-filled with Sensible Defaults) -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label class="dark-label" for="beefADG">Base ADG (kg/day)</label>
+                    <input type="number" id="beefADG" value="1.20" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label class="dark-label" for="beefFCR">Target FCR</label>
+                    <input type="number" id="beefFCR" value="6.0" step="0.1">
+                </div>
+            </div>
+
+            <button id="calcBeefBtn" class="primary-btn mt-15">Predict Harvest</button>
+
+            <!-- THE RESULTS BOX (Hidden until calculated) -->
+            <div id="beefResultBox" class="result-box hidden-result mt-15" style="display: none;">
+                <h3 class="prediction-title">Harvest Projection:</h3>
+                <p>Days to Target: <strong id="beefResDays" class="large-text">0 Days</strong></p>
+                <hr class="result-divider">
+                <p>Total Feed Needed: <strong id="beefResFeed">0 kg</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- GOATS & SHEEP MODULE -->
+    <!-- ========================================== -->
+    <div id="goatsModule" class="species-module hidden-section">
+        <div class="card predictor-card">
+            <!-- Ensure you have a goats-banner.jpg file in your folder! -->
+            <img src="goat-banner.jpg" class="module-banner" alt="Goats and Sheep Banner">
+            <h2>Goats & Sheep Management</h2>
+            <h3 class="prediction-title">Small Ruminant Predictor</h3>
+            <p class="help-text-small">Estimate harvest dates and total feed requirements for goats and sheep.</p>
+                
+            <!-- ROW 1: Weights -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label class="dark-label" for="goatsCurrentWeight">Current Weight (kg)</label>
+                    <input type="number" id="goatsCurrentWeight" placeholder="e.g., 15" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label class="dark-label" for="goatsTargetWeight">Target Weight (kg)</label>
+                    <input type="number" id="goatsTargetWeight" placeholder="e.g., 35" step="0.1">
+                </div>
+            </div>
+
+            <!-- ROW 2: Performance Metrics (Pre-filled with Sensible Defaults) -->
+            <div class="input-row">
+                <div class="input-group">
+                    <label class="dark-label" for="goatsADG">Base ADG (kg/day)</label>
+                    <input type="number" id="goatsADG" value="0.15" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label class="dark-label" for="goatsFCR">Target FCR</label>
+                    <input type="number" id="goatsFCR" value="4.5" step="0.1">
+                </div>
+            </div>
+
+            <button id="calcGoatsBtn" class="primary-btn mt-15">Predict Harvest</button>
+
+            <!-- THE RESULTS BOX (Hidden until calculated) -->
+            <div id="goatsResultBox" class="result-box hidden-result mt-15" style="display: none;">
+                <h3 class="prediction-title">Harvest Projection:</h3>
+                <p>Days to Target: <strong id="goatsResDays" class="large-text">0 Days</strong></p>
+                <hr class="result-divider">
+                <p>Total Feed Needed: <strong id="goatsResFeed">0 kg</strong></p>
+            </div>
+        </div>
+    </div>
       
     <div id="inventoryView" class="page-section">
       <div class="card inventory-card">

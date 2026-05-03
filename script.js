@@ -253,5 +253,137 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (window.UIController && typeof window.UIController.init === 'function') {
         window.UIController.init();
+    // --- DYNAMIC TOOL VISIBILITY LOGIC ---
+    const operationSelector = document.getElementById('farmOperationSelector');
+
+        if (operationSelector) {
+        const updateToolVisibility = () => {
+            // Get the exact value the user selected (e.g., 'poultry', 'swine', 'beef')
+            const selectedValue = operationSelector.value; 
+
+            // Find EVERY card in your HTML that has the class 'species-module'
+            const allModules = document.querySelectorAll('.species-module');
+
+            // Loop through them all and only show the one that perfectly matches
+            allModules.forEach(module => {
+                // This dynamically checks if the module ID matches the dropdown value + "Module"
+                // Example: if dropdown is 'swine', it looks for an HTML id of 'swineModule'
+                if (module.id === selectedValue + 'Module') {
+                    module.style.display = 'block'; // Show the matching banner
+                } else {
+                    module.style.display = 'none';  // Hide all the others
+                }
+            });
+        };
+
+        // 1. Run it immediately when the dashboard loads
+        updateToolVisibility();
+
+        // 2. Listen for any future changes
+        operationSelector.addEventListener('change', updateToolVisibility);
     }
-});
+}
+// --- SWINE GROWTH CALCULATOR LOGIC ---
+const calcSwineBtn = document.getElementById('calcSwineBtn');
+        
+if (calcSwineBtn) {
+    calcSwineBtn.addEventListener('click', () => {
+        // Gather inputs
+        const currentWt = parseFloat(document.getElementById('swineCurrentWeight').value);
+        const targetWt = parseFloat(document.getElementById('swineTargetWeight').value);
+        const adg = parseFloat(document.getElementById('swineADG').value);
+        const fcr = parseFloat(document.getElementById('swineFCR').value);
+
+        // Safety check
+        if (!currentWt || !targetWt || !adg || !fcr) {
+            alert("Please fill in all Swine Predictor fields to calculate.");
+            return;
+        }
+
+        // Math execution
+        const weightToGain = targetWt - currentWt;
+              
+        if (weightToGain <= 0) {
+            alert("Target weight must be greater than current weight!");
+            return;
+        }
+
+        const daysToHarvest = Math.ceil(weightToGain / adg);
+        const totalFeed = (weightToGain * fcr).toFixed(2);
+
+        // Display results
+        document.getElementById('swineResDays').innerText = daysToHarvest + " Days";
+        document.getElementById('swineResFeed').innerText = totalFeed + " kg";
+                
+        const resultBox = document.getElementById('swineResultBox');
+        resultBox.style.display = 'block';
+                
+        // Scroll into view
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+}
+// --- BEEF CATTLE CALCULATOR LOGIC ---
+const calcBeefBtn = document.getElementById('calcBeefBtn');
+if (calcBeefBtn) {
+    calcBeefBtn.addEventListener('click', () => {
+        const currentWt = parseFloat(document.getElementById('beefCurrentWeight').value);
+        const targetWt = parseFloat(document.getElementById('beefTargetWeight').value);
+        const adg = parseFloat(document.getElementById('beefADG').value);
+        const fcr = parseFloat(document.getElementById('beefFCR').value);
+
+        if (!currentWt || !targetWt || !adg || !fcr) {
+            alert("Please fill in all Beef Predictor fields to calculate.");
+            return;
+        }
+
+        const weightToGain = targetWt - currentWt;
+        if (weightToGain <= 0) {
+            alert("Target weight must be greater than current weight!");
+            return;
+        }
+
+        const daysToHarvest = Math.ceil(weightToGain / adg);
+        const totalFeed = (weightToGain * fcr).toFixed(2);
+        
+        document.getElementById('beefResDays').innerText = daysToHarvest + " Days";
+        document.getElementById('beefResFeed').innerText = totalFeed + " kg";
+                
+        const resultBox = document.getElementById('beefResultBox');
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+}
+
+// --- GOATS & SHEEP CALCULATOR LOGIC ---
+const calcGoatsBtn = document.getElementById('calcGoatsBtn');
+if (calcGoatsBtn) {
+    calcGoatsBtn.addEventListener('click', () => {
+        const currentWt = parseFloat(document.getElementById('goatsCurrentWeight').value);
+        const targetWt = parseFloat(document.getElementById('goatsTargetWeight').value);
+        const adg = parseFloat(document.getElementById('goatsADG').value);
+        const fcr = parseFloat(document.getElementById('goatsFCR').value);
+
+        if (!currentWt || !targetWt || !adg || !fcr) {
+            alert("Please fill in all Small Ruminant fields to calculate.");
+            return;
+        }
+
+        const weightToGain = targetWt - currentWt;
+        if (weightToGain <= 0) {
+            alert("Target weight must be greater than current weight!");
+            return;
+        }
+
+        const daysToHarvest = Math.ceil(weightToGain / adg);
+        const totalFeed = (weightToGain * fcr).toFixed(2);
+
+        document.getElementById('goatsResDays').innerText = daysToHarvest + " Days";
+        document.getElementById('goatsResFeed').innerText = totalFeed + " kg";
+                
+        const resultBox = document.getElementById('goatsResultBox');
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+}
+
+});    
