@@ -1,5 +1,6 @@
 import { SimulatorController } from './simulator.js';
 import { InventoryController } from './inventory.js';
+import { supabaseClient } from './db.js';
 
 export const ScannerController = {
   stream: null,
@@ -47,7 +48,7 @@ export const ScannerController = {
 
             try {
                 // 1. Get the currently logged-in user's ID securely from Supabase
-                const { data: authData } = await supabase.auth.getUser();
+                const { data: authData } = await supabaseClient.auth.getUser();
                 
                 // Safety check: Ensure the app found a logged-in user
                 if (!authData || !authData.user) {
@@ -80,7 +81,7 @@ export const ScannerController = {
 
             } catch (error) {
                 console.error("Payment Error:", error);
-                alert("We couldn't connect to the payment processor or verify your account. Please check your internet connection and ensure you are logged in.");
+                alert(error.message ||"We couldn't connect to the payment processor. Please try again.");
                 
                 // Reset the button if it fails so they can try again
                 document.getElementById('payBtnText').style.display = 'inline';
